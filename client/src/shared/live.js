@@ -1,0 +1,55 @@
+import { useEffect, useRef, useState } from 'react';
+
+const EVENT_TYPES = ['order.placed', 'order.updated', 'menu.item-updated', 'table.closed', 'resync'];
+const REOPEN_DELAY_MS = 2000;
+
+/**
+ * Keeps a screen on the live stream (contract C2). The browser reconnects by
+ * itself, sending the last id so missed events replay. Returns { connected }.
+ *
+ * `onEvent(type, data)` gets every event, including `resync`, which means reload.
+ * `onOpen()` runs on each connection: a screen should reload its data there, so a
+ * change made between its first read and the stream opening is not missed.
+ * `tableId` narrows the stream to that table; omit it for the whole restaurant.
+ */
+export function useLiveEvents({ tableId = null, onEvent, onOpen }) {
+  const [connected, setConnected] = useState(false);
+  const handlers = useRef({ onEvent, onOpen });
+  handlers.current = { onEvent, onOpen };
+
+  useEffect(() => {
+    let source;
+    let reopenTimer;
+    let isStopped = false;
+    const url = tableId === null ? '/api/events' : `/api/events?tableId=${encodeURIComponent(tableId)}`;
+
+    function connect() {
+      source = new EventSource(url);
+      source.onopen = () => {
+        setConnected(true);
+        handlers.current.onOpen?.();
+      };
+      source.onerror = () => {
+        setConnected(false);
+        // CLOSED means the browser gave up (an error answer rather than a dropped line).
+        if (source.readyState === EventSource.CLOSED && !isStopped) {
+          reopenTimer = setTimeout(connect, REOPEN_DELAY_MS);
+        }
+      };
+      for (const type of EVENT_TYPES) {
+        source.addEventListener(type, (message) => {
+          handlers.current.onEvent?.(type, JSON.parse(message.data));
+        });
+      }
+    }
+
+    connect();
+    return () => {
+      isStopped = true;
+      clearTimeout(reopenTimer);
+      source.close();
+    };
+  }, [tableId]);
+
+  return { connected };
+}

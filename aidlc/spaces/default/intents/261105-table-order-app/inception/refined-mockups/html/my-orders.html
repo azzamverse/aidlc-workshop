@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My orders - Table 5</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="diner">
+  <header class="topbar"><div class="title"><h1>My orders</h1><span class="muted">Table 5</span></div></header>
+  <main class="content">
+    <div class="notice info" role="status"><span aria-hidden="true">✓</span><span>Order #15 placed. We'll keep its status updated here.</span></div>
+    <article class="card">
+      <div class="order-head"><h3>Order #15</h3><span class="status pending"><span aria-hidden="true">⏳</span>Pending</span></div>
+      <ul class="order-lines"><li>1 × Cheeseburger</li><li>2 × Lemonade</li></ul>
+      <div class="line"><span class="price">$17.50</span><button class="btn secondary small">Cancel order</button></div>
+    </article>
+    <article class="card">
+      <div class="order-head"><h3>Order #12</h3><span class="status preparing"><span aria-hidden="true">🍳</span>Preparing</span></div>
+      <ul class="order-lines"><li>1 × Spaghetti Bolognese</li><li>1 × Iced Tea</li></ul>
+      <div class="line"><span class="price">$16.00</span></div>
+    </article>
+    <article class="card">
+      <div class="order-head"><h3>Order #10</h3><span class="status cancelled"><span aria-hidden="true">✕</span>Cancelled</span></div>
+      <ul class="order-lines"><li>1 × Apple Pie</li></ul>
+      <div class="line"><span class="muted"><s>$5.50</s> · Not on the bill</span></div>
+    </article>
+    <article class="card">
+      <div class="order-head"><h3>Order #9</h3><span class="status completed"><span aria-hidden="true">✓</span>Completed</span></div>
+      <ul class="order-lines"><li>1 × Tomato Soup</li><li>2 × Coffee</li></ul>
+      <div class="line"><span class="price">$10.50</span></div>
+    </article>
+  </main>
+  <nav class="tabs" aria-label="Main">
+    <a class="tab" href="menu.html"><span class="icon" aria-hidden="true">🍽️</span>Menu</a>
+    <a class="tab" href="cart.html"><span class="icon" aria-hidden="true">🛒</span>Cart</a>
+    <a class="tab" href="my-orders.html" aria-current="page"><span class="icon" aria-hidden="true">🧾</span>My orders</a>
+  </nav>
+</div>
+</body>
+</html>

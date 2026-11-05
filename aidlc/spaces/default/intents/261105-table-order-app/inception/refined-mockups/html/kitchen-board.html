@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kitchen Board</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="staff">
+  <header class="staff-bar">
+    <h1>Kitchen Board</h1>
+    <span class="live" role="status"><span aria-hidden="true">●</span>Live</span>
+    <a class="btn secondary small" href="#availability">Menu availability</a>
+  </header>
+  <main class="board">
+    <section class="table-card"><header><h2>Table 1</h2><a class="btn secondary small" href="table-bill.html">Open bill</a></header><p class="muted">No orders</p></section>
+    <section class="table-card"><header><h2>Table 2</h2><a class="btn secondary small" href="table-bill.html">Open bill</a></header>
+      <div class="order new"><div class="order-title"><span>#14 <span class="new-tag">★ New</span></span><span class="status pending"><span aria-hidden="true">⏳</span>Pending</span></div><div class="muted">1 × Margherita Pizza<br>1 × Coffee</div><button class="btn small">Start preparing</button></div>
+    </section>
+    <section class="table-card"><header><h2>Table 3</h2><a class="btn secondary small" href="table-bill.html">Open bill</a></header>
+      <div class="order"><div class="order-title"><span>#13</span><span class="status completed"><span aria-hidden="true">✓</span>Completed</span></div><div class="muted">2 × Cheeseburger</div></div>
+    </section>
+    <section class="table-card"><header><h2>Table 4</h2><a class="btn secondary small" href="table-bill.html">Open bill</a></header><p class="muted">No orders</p></section>
+    <section class="table-card"><header><h2>Table 5</h2><a class="btn secondary small" href="table-bill.html">Open bill</a></header>
+      <div class="order new"><div class="order-title"><span>#15 <span class="new-tag">★ New</span></span><span class="status pending"><span aria-hidden="true">⏳</span>Pending</span></div><div class="muted">1 × Cheeseburger<br>2 × Lemonade</div><button class="btn small">Start preparing</button></div>
+      <div class="order"><div class="order-title"><span>#12</span><span class="status preparing"><span aria-hidden="true">🍳</span>Preparing</span></div><div class="muted">1 × Spaghetti Bolognese<br>1 × Iced Tea</div><button class="btn small">Mark completed</button></div>
+      <div class="order"><div class="order-title"><span>#10</span><span class="status cancelled"><span aria-hidden="true">✕</span>Cancelled</span></div><div class="muted">1 × Apple Pie</div></div>
+      <div class="order"><div class="order-title"><span>#9</span><span class="status completed"><span aria-hidden="true">✓</span>Completed</span></div><div class="muted">1 × Tomato Soup<br>2 × Coffee</div></div>
+    </section>
+    <section class="table-card"><header><h2>Table 6</h2><a class="btn secondary small" href="table-bill.html">Open bill</a></header><p class="muted">No orders</p></section>
+    <section class="table-card"><header><h2>Table 7</h2><a class="btn secondary small" href="table-bill.html">Open bill</a></header>
+      <div class="order"><div class="order-title"><span>#11</span><span class="status preparing"><span aria-hidden="true">🍳</span>Preparing</span></div><div class="muted">1 × Caesar Salad</div><button class="btn small">Mark completed</button></div>
+    </section>
+    <section class="table-card"><header><h2>Table 8</h2><a class="btn secondary small" href="table-bill.html">Open bill</a></header><p class="muted">No orders</p></section>
+    <section class="table-card"><header><h2>Table 9</h2><a class="btn secondary small" href="table-bill.html">Open bill</a></header><p class="muted">No orders</p></section>
+    <section class="table-card"><header><h2>Table 10</h2><a class="btn secondary small" href="table-bill.html">Open bill</a></header><p class="muted">No orders</p></section>
+  </main>
+  <aside class="panel" id="availability" aria-label="Menu availability">
+    <div class="order-head"><h2>Menu availability</h2><a class="btn secondary small" href="#">Close</a></div>
+    <p class="muted">Mark an item sold out and diners see it straight away.</p>
+    <div class="switch-row"><span>Garlic Bread</span><label><input type="checkbox">Sold out</label></div>
+    <div class="switch-row"><span>Tomato Soup</span><label><input type="checkbox">Sold out</label></div>
+    <div class="switch-row"><span>Caesar Salad</span><label><input type="checkbox">Sold out</label></div>
+    <div class="switch-row"><span>Margherita Pizza</span><label><input type="checkbox">Sold out</label></div>
+    <div class="switch-row"><span>Cheeseburger</span><label><input type="checkbox">Sold out</label></div>
+    <div class="switch-row"><span>Spaghetti Bolognese</span><label><input type="checkbox">Sold out</label></div>
+    <div class="switch-row"><span>Chocolate Cake</span><label><input type="checkbox">Sold out</label></div>
+    <div class="switch-row"><span>Ice Cream</span><label><input type="checkbox" checked>Sold out</label></div>
+    <div class="switch-row"><span>Apple Pie</span><label><input type="checkbox">Sold out</label></div>
+    <div class="switch-row"><span>Lemonade</span><label><input type="checkbox">Sold out</label></div>
+    <div class="switch-row"><span>Iced Tea</span><label><input type="checkbox">Sold out</label></div>
+    <div class="switch-row"><span>Coffee</span><label><input type="checkbox">Sold out</label></div>
+  </aside>
+</div>
+</body>
+</html>

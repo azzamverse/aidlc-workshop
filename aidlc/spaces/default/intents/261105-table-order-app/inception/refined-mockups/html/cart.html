@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cart - Table 5</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="diner">
+  <header class="topbar"><div class="title"><h1>Your cart</h1><span class="muted">Table 5</span></div></header>
+  <main class="content">
+    <article class="card">
+      <div class="line"><h3>Garlic Bread</h3><span class="price">$9.00</span></div>
+      <p class="muted">$4.50 each</p>
+      <div class="line">
+        <div class="stepper"><button aria-label="One fewer Garlic Bread">−</button><output>2</output><button aria-label="One more Garlic Bread">+</button></div>
+        <button class="link-btn">Remove</button>
+      </div>
+    </article>
+    <article class="card">
+      <div class="line"><h3>Margherita Pizza</h3><span class="price">$12.00</span></div>
+      <p class="muted">$12.00 each</p>
+      <div class="line">
+        <div class="stepper"><button aria-label="One fewer Margherita Pizza" disabled>−</button><output>1</output><button aria-label="One more Margherita Pizza">+</button></div>
+        <button class="link-btn">Remove</button>
+      </div>
+    </article>
+    <div class="total card"><span>Total</span><span class="price">$21.00</span></div>
+  </main>
+  <div class="summary"><button class="btn"><span>Place order</span><span class="price">$21.00</span></button></div>
+  <nav class="tabs" aria-label="Main">
+    <a class="tab" href="menu.html"><span class="icon" aria-hidden="true">🍽️</span>Menu</a>
+    <a class="tab" href="cart.html" aria-current="page"><span class="icon" aria-hidden="true">🛒</span>Cart<span class="badge" aria-label="3 items">3</span></a>
+    <a class="tab" href="my-orders.html"><span class="icon" aria-hidden="true">🧾</span>My orders</a>
+  </nav>
+</div>
+</body>
+</html>

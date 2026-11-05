@@ -29,6 +29,7 @@ aidlc/diagnostics/
 # The app's generated files: never committed, so parallel Bolts (git worktrees) start clean.
 node_modules/
 dist/
+data/
 coverage/
 test-results/
 playwright-report/

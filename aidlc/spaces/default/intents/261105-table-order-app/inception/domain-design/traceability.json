@@ -1,0 +1,24 @@
+{
+  "stage": "domain-design",
+  "upstream_ids": ["US1.1","US1.2","US1.3","US1.4","US1.5","US1.6","US3.1","US2.1","US2.2","US3.2","US3.3","US4.3","US4.1","US4.2","US5.2","US5.3","US5.1"],
+  "coverage": [
+    { "id": "US1.1", "status": "OK", "target": "DinerApp, Menu" },
+    { "id": "US1.2", "status": "OK", "target": "DinerApp, Menu, LiveUpdates" },
+    { "id": "US1.3", "status": "OK", "target": "DinerApp, Cart" },
+    { "id": "US1.4", "status": "OK", "target": "DinerApp, Cart" },
+    { "id": "US1.5", "status": "OK", "target": "DinerApp, Ordering, Platform" },
+    { "id": "US1.6", "status": "OK", "target": "DinerApp, Ordering, Menu" },
+    { "id": "US2.1", "status": "OK", "target": "DinerApp, Ordering, LiveUpdates" },
+    { "id": "US2.2", "status": "OK", "target": "DinerApp, Ordering" },
+    { "id": "US3.1", "status": "OK", "target": "StaffApp, Ordering, Tables, LiveUpdates" },
+    { "id": "US3.2", "status": "OK", "target": "StaffApp, Ordering, LiveUpdates" },
+    { "id": "US3.3", "status": "OK", "target": "StaffApp, Menu, LiveUpdates" },
+    { "id": "US4.1", "status": "OK", "target": "StaffApp, Billing" },
+    { "id": "US4.2", "status": "OK", "target": "StaffApp, Billing, Tables" },
+    { "id": "US4.3", "status": "OK", "target": "DinerApp, Billing, LiveUpdates" },
+    { "id": "US5.1", "status": "OK", "target": "Platform" },
+    { "id": "US5.2", "status": "OK", "target": "DinerApp, Tables" },
+    { "id": "US5.3", "status": "OK", "target": "DinerApp, StaffApp" }
+  ],
+  "reverse": []
+}

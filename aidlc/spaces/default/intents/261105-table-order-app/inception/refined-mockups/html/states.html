@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screen states</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="gallery">
+  <h1>Screen states</h1>
+  <div class="states">
+    <section class="state"><h2>Menu: loading</h2><div class="skeleton"></div><div class="skeleton"></div></section>
+    <section class="state"><h2>Menu: error</h2><div class="notice error" role="alert"><span aria-hidden="true">⚠</span><span>We couldn't load the menu. Check your connection and try again.</span></div><button class="btn secondary">Try again</button></section>
+    <section class="state"><h2>Table not found</h2><div class="card empty"><div class="big" aria-hidden="true">🔍</div><h3>Table not found</h3><p class="muted">Please check the table number on your table.</p></div></section>
+    <section class="state"><h2>Cart: empty</h2><div class="card empty"><div class="big" aria-hidden="true">🛒</div><h3>Your cart is empty</h3><p class="muted">Add something from the menu to get started.</p><a class="btn" href="menu.html">Browse the menu</a></div></section>
+    <section class="state"><h2>Cart: an item sold out</h2><div class="notice" role="alert"><span aria-hidden="true">⚠</span><span>Ice Cream just sold out, so we took it out of your cart. Nothing has been ordered yet.</span></div></section>
+    <section class="state"><h2>Cart: placing failed</h2><div class="notice error" role="alert"><span aria-hidden="true">⚠</span><span>We couldn't place your order. Your cart is safe. Please try again.</span></div></section>
+    <section class="state"><h2>My orders: empty</h2><div class="card empty"><div class="big" aria-hidden="true">🧾</div><h3>No orders yet</h3><p class="muted">Orders from your table will show here.</p><a class="btn" href="menu.html">Browse the menu</a></div></section>
+    <section class="state"><h2>My orders: too late to cancel</h2><div class="notice" role="alert"><span aria-hidden="true">🍳</span><span>Order #15 is already being prepared, so it can't be cancelled.</span></div></section>
+    <section class="state"><h2>Any diner screen: reconnecting</h2><div class="notice info" role="status"><span aria-hidden="true">↻</span><span>Reconnecting… we'll catch up on any changes.</span></div></section>
+    <section class="state"><h2>Any diner screen: table closed</h2><div class="card empty"><div class="big" aria-hidden="true">👋</div><h3>This table was closed</h3><p class="muted">Thanks for visiting. Your cart and orders have been cleared.</p></div></section>
+    <section class="state"><h2>Kitchen Board: connection lost</h2><div class="notice info" role="status"><span aria-hidden="true">↻</span><span>Reconnecting… the board will catch up by itself.</span></div></section>
+    <section class="state"><h2>Kitchen Board: change refused</h2><div class="notice" role="alert"><span aria-hidden="true">✕</span><span>Order #15 was just cancelled by the diner, so it can't be moved on.</span></div></section>
+    <section class="state"><h2>Cart: quantity at the limit</h2><article class="card"><div class="line"><h3>Coffee</h3><span class="price">$50.00</span></div><div class="stepper"><button aria-label="One fewer Coffee">−</button><output>20</output><button aria-label="One more Coffee" disabled>+</button></div><p class="muted">20 is the most for one item.</p></article></section>
+    <section class="state"><h2>Cart: item sold out while choosing</h2><article class="card"><div class="line"><h3>Ice Cream</h3><span class="price">$4.00</span></div><div class="stepper"><button aria-label="One fewer Ice Cream" disabled>−</button><output>1</output><button aria-label="One more Ice Cream">+</button></div><p class="muted">The line looks the same until the order is placed; then the sold-out message applies.</p></article></section>
+    <section class="state"><h2>Table Bill: loading</h2><div class="skeleton"></div></section>
+    <section class="state"><h2>Table Bill: error</h2><div class="notice error" role="alert"><span aria-hidden="true">⚠</span><span>We couldn't load this bill. Please try again.</span></div><button class="btn secondary">Try again</button></section>
+    <section class="state"><h2>Table Bill: no orders</h2><div class="card empty"><div class="big" aria-hidden="true">🧾</div><h3>No orders for this table</h3><p class="muted">Table total $0.00</p><button class="btn" disabled>Close table</button></div></section>
+    <section class="state"><h2>Table Bill: ready to close</h2><div class="card"><div class="total"><span>Table total</span><span class="price">$44.00</span></div></div><button class="btn">Close table</button></section>
+    <section class="state"><h2>Table Bill: closed</h2><div class="notice info" role="status"><span aria-hidden="true">✓</span><span>Table 5 closed. It's ready for the next diner.</span></div></section>
+  </div>
+</main>
+</body>
+</html>

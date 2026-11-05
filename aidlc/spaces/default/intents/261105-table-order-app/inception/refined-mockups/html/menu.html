@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menu - Table 5</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="diner">
+  <header class="topbar">
+    <div class="title"><h1>Menu</h1><span class="muted">Table 5</span></div>
+    <nav class="pills" aria-label="Menu categories">
+      <a class="pill active" href="#starters" aria-current="true">Starters</a>
+      <a class="pill" href="#mains">Mains</a>
+      <a class="pill" href="#desserts">Desserts</a>
+      <a class="pill" href="#drinks">Drinks</a>
+    </nav>
+  </header>
+  <main class="content">
+    <h2 id="starters">Starters</h2>
+    <article class="card item"><div class="tile" aria-hidden="true">🥖</div><div><h3>Garlic Bread</h3><p>Toasted sourdough with garlic butter and parsley.</p><div class="price-row"><span class="price">$4.50</span><button class="add" aria-label="Add Garlic Bread">+ Add</button></div></div></article>
+    <article class="card item"><div class="tile" aria-hidden="true">🍅</div><div><h3>Tomato Soup</h3><p>Slow-roasted tomatoes with basil and cream.</p><div class="price-row"><span class="price">$5.50</span><button class="add" aria-label="Add Tomato Soup">+ Add</button></div></div></article>
+    <article class="card item"><div class="tile" aria-hidden="true">🥗</div><div><h3>Caesar Salad</h3><p>Romaine, parmesan, croutons and Caesar dressing.</p><div class="price-row"><span class="price">$7.00</span><button class="add" aria-label="Add Caesar Salad">+ Add</button></div></div></article>
+    <h2 id="mains">Mains</h2>
+    <article class="card item"><div class="tile" aria-hidden="true">🍕</div><div><h3>Margherita Pizza</h3><p>Tomato, mozzarella and fresh basil.</p><div class="price-row"><span class="price">$12.00</span><button class="add" aria-label="Add Margherita Pizza">+ Add</button></div></div></article>
+    <article class="card item"><div class="tile" aria-hidden="true">🍔</div><div><h3>Cheeseburger</h3><p>Beef patty, cheddar, pickles and house sauce.</p><div class="price-row"><span class="price">$11.50</span><button class="add" aria-label="Add Cheeseburger">+ Add</button></div></div></article>
+    <article class="card item"><div class="tile" aria-hidden="true">🍝</div><div><h3>Spaghetti Bolognese</h3><p>Slow-cooked beef ragu with parmesan.</p><div class="price-row"><span class="price">$13.00</span><button class="add" aria-label="Add Spaghetti Bolognese">+ Add</button></div></div></article>
+    <h2 id="desserts">Desserts</h2>
+    <article class="card item"><div class="tile" aria-hidden="true">🍰</div><div><h3>Chocolate Cake</h3><p>Rich sponge with dark chocolate ganache.</p><div class="price-row"><span class="price">$6.00</span><button class="add" aria-label="Add Chocolate Cake">+ Add</button></div></div></article>
+    <article class="card item soldout"><div class="tile" aria-hidden="true">🍨</div><div><h3>Ice Cream</h3><p>Three scoops of vanilla, chocolate or strawberry.</p><div class="price-row"><span class="price">$4.00</span><span class="soldout-tag">Sold out</span></div></div></article>
+    <article class="card item"><div class="tile" aria-hidden="true">🥧</div><div><h3>Apple Pie</h3><p>Warm spiced apples in a buttery crust.</p><div class="price-row"><span class="price">$5.50</span><button class="add" aria-label="Add Apple Pie">+ Add</button></div></div></article>
+    <h2 id="drinks">Drinks</h2>
+    <article class="card item"><div class="tile" aria-hidden="true">🍋</div><div><h3>Lemonade</h3><p>Freshly squeezed with a hint of mint.</p><div class="price-row"><span class="price">$3.00</span><button class="add" aria-label="Add Lemonade">+ Add</button></div></div></article>
+    <article class="card item"><div class="tile" aria-hidden="true">🥤</div><div><h3>Iced Tea</h3><p>Black tea, chilled, with lemon.</p><div class="price-row"><span class="price">$3.00</span><button class="add" aria-label="Add Iced Tea">+ Add</button></div></div></article>
+    <article class="card item"><div class="tile" aria-hidden="true">☕</div><div><h3>Coffee</h3><p>Freshly brewed house blend.</p><div class="price-row"><span class="price">$2.50</span><button class="add" aria-label="Add Coffee">+ Add</button></div></div></article>
+  </main>
+  <div class="summary"><a class="btn" href="cart.html"><span>View cart · 3 items</span><span class="price">$21.00</span></a></div>
+  <nav class="tabs" aria-label="Main">
+    <a class="tab" href="menu.html" aria-current="page"><span class="icon" aria-hidden="true">🍽️</span>Menu</a>
+    <a class="tab" href="cart.html"><span class="icon" aria-hidden="true">🛒</span>Cart<span class="badge" aria-label="3 items">3</span></a>
+    <a class="tab" href="my-orders.html"><span class="icon" aria-hidden="true">🧾</span>My orders</a>
+  </nav>
+</div>
+<script>
+  const pills = [...document.querySelectorAll('.pill')];
+  const seen = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) pills.forEach((p) => {
+      const on = p.getAttribute('href') === '#' + e.target.id;
+      p.classList.toggle('active', on);
+      if (on) p.setAttribute('aria-current', 'true'); else p.removeAttribute('aria-current');
+    });
+  }, { rootMargin: '-120px 0px -70% 0px' });
+  document.querySelectorAll('h2[id]').forEach((h) => seen.observe(h));
+</script>
+</body>
+</html>
