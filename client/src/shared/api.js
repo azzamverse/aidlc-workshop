@@ -64,7 +64,10 @@ export async function placeOrder(tableId, placement) {
   }
 }
 
-export const cancelOrder = (tableId, orderId) =>
+export const getBill = (tableId) => request(`/api/tables/${encodeURIComponent(tableId)}/bill`);
+export const closeTable = (tableId) => request(`/api/tables/${encodeURIComponent(tableId)}/close`, { method: 'POST' });
+
+export const cancelOrder =(tableId, orderId) =>
   request(`/api/tables/${encodeURIComponent(tableId)}/orders/${encodeURIComponent(orderId)}/cancel`, { method: 'POST' });
 
 export const moveOrder = (orderId, from, to) =>

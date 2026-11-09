@@ -82,6 +82,25 @@ a { color: var(--accent-dark); }
 .skeleton { height: 96px; border-radius: var(--radius); background: linear-gradient(90deg, #efe8df, #f7f2ec, #efe8df); background-size: 200% 100%; animation: shimmer 1.4s infinite linear; }
 @keyframes shimmer { to { background-position: -200% 0; } }
 
+/* Diner screens (U2) */
+.menu-category { display: grid; gap: 14px; }
+.menu-category h2:focus { outline: none; }
+.content-skeletons { display: grid; gap: 14px; }
+.card.item { align-items: start; }
+.stepper button:not([disabled]):hover { background: var(--accent); color: #fff; }
+.link-btn[disabled] { color: var(--muted); cursor: not-allowed; }
+.summary .btn[disabled] { box-shadow: var(--shadow); }
+
+/* Kitchen board (U3) */
+.panel.open { display: block; }
+.order .btn[aria-disabled="true"] { background: var(--cancelled-bg); color: var(--cancelled); cursor: not-allowed; }
+.switch-row input[aria-disabled="true"] { opacity: .5; cursor: not-allowed; }
+.panel .notice, .panel .skeleton { margin-top: 12px; }
+.board-notices { display: grid; gap: 10px; justify-items: start; padding: 16px 24px 0; }
+
+/* Table bill (U4) */
+.bill .btn[aria-disabled="true"] { background: var(--cancelled-bg); color: var(--cancelled); cursor: not-allowed; }
+
 /* Staff frame */
 .staff { max-width: 1280px; margin: 0 auto; padding-bottom: 40px; }
 .staff-bar { position: sticky; top: 0; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 24px; background: rgba(251, 247, 242, .86); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }

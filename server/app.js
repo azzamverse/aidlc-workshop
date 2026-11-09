@@ -1,4 +1,5 @@
 import express from 'express';
+import { createBillingService } from './billing/service.js';
 import { AppError, toErrorBody, validationFailed } from './platform/errors.js';
 
 /** Contract C5. Each address serves the app; the client's router picks the screen. */
@@ -124,6 +125,9 @@ export function createApp(context, { distDir, isTestMode = false }) {
   // ROUTE SLOT: Billing (U4). U4 registers its C3 routes here, using context.shared,
   // and edits nothing else in this file.
   // >>> BILLING ROUTES START
+  const billing = createBillingService({ shared: context.shared, requireTable: context.tables.requireTable });
+  api.get('/tables/:tableId/bill', (req, res) => res.json(billing.getBill(req.params.tableId)));
+  api.post('/tables/:tableId/close', (req, res) => res.json(billing.closeTable(req.params.tableId)));
   // <<< BILLING ROUTES END
 
   api.use(() => {

@@ -22,7 +22,13 @@ export default defineConfig({
     baseURL: `http://localhost:${e2ePort}`,
     trace: 'retain-on-failure',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  // Chromium, the installed Google Chrome and WebKit (NFR9). Firefox is not supported.
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'google-chrome', use: { ...devices['Desktop Chrome'], channel: 'chrome' } },
+    // WebKit's clicks and screenshots are slow on Windows, so each test gets longer overall.
+    { name: 'webkit', use: { ...devices['Desktop Safari'] }, timeout: 180_000 },
+  ],
   webServer: {
     command: 'npm run build && node server/index.js',
     url: `http://localhost:${e2ePort}/api/menu`,

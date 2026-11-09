@@ -1,92 +1,170 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useOutletContext } from 'react-router-dom';
-import { getMenu, newPlacementKey, placeOrder } from '../../shared/api.js';
-import { setCartCount } from '../../shared/cartCount.js';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { getMenu } from '../../shared/api.js';
 import { formatMoney } from '../../shared/money.js';
+import { cartItemCount, cartTotalCents } from './cartStore.js';
+import { ClosedScreen, Notice, ReconnectingNotice, Skeletons, TopBar } from './parts.jsx';
+import { useCart, useDinerSession } from './useDinerSession.js';
 
-/**
- * TODO(U2): the walking skeleton's plain page, kept deliberately simple so it
- * proves an order reaches the kitchen. U2 replaces this file with the real Menu.
- */
-export function MenuScreen() {
-  const { table } = useOutletContext();
-  const [menu, setMenu] = useState(null);
-  const [loadFailed, setLoadFailed] = useState(false);
-  const [quantities, setQuantities] = useState({});
-  const [placementKey, setPlacementKey] = useState(newPlacementKey);
-  const [result, setResult] = useState(null);
+// The band below the sticky bar where a heading makes its category the current one.
+const CURRENT_LINE_PX = 130;
 
-  const loadMenu = useCallback(async () => {
-    setLoadFailed(false);
-    try {
-      setMenu(await getMenu());
-    } catch {
-      setLoadFailed(true);
-    }
-  }, []);
+function useCurrentCategory(categories) {
+  const [currentId, setCurrentId] = useState(null);
 
   useEffect(() => {
-    loadMenu();
-  }, [loadMenu]);
-
-  const itemCount = useMemo(() => Object.values(quantities).reduce((sum, quantity) => sum + quantity, 0), [quantities]);
-
-  useEffect(() => {
-    setCartCount(itemCount);
-  }, [itemCount]);
-
-  function addItem(itemId) {
-    setResult(null);
-    setQuantities((current) => ({ ...current, [itemId]: (current[itemId] ?? 0) + 1 }));
-  }
-
-  async function submitOrder() {
-    const lines = Object.entries(quantities).map(([itemId, quantity]) => ({ itemId, quantity }));
-    try {
-      const order = await placeOrder(table.id, { visitId: table.visitId, placementKey, lines });
-      setResult({ message: `Order #${order.number} placed.` });
-      setQuantities({});
-      setPlacementKey(newPlacementKey());
-    } catch (error) {
-      setResult({ message: error.message, isError: true });
+    if (categories.length === 0) return undefined;
+    function update() {
+      const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      const passed = categories.filter((category) => {
+        const heading = document.getElementById(category.id);
+        return heading && heading.getBoundingClientRect().top <= CURRENT_LINE_PX;
+      });
+      const current = atBottom ? categories.at(-1) : (passed.at(-1) ?? categories[0]);
+      setCurrentId(current.id);
     }
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [categories]);
+
+  return currentId;
+}
+
+function CategoryPills({ categories, currentId }) {
+  const bar = useRef(null);
+
+  // Keeps the filled pill in view on a narrow phone, without moving the page.
+  useEffect(() => {
+    const pill = bar.current?.querySelector('[aria-current="true"]');
+    if (pill) bar.current.scrollLeft = pill.offsetLeft - (bar.current.clientWidth - pill.offsetWidth) / 2;
+  }, [currentId]);
+
+  function goTo(event, categoryId) {
+    event.preventDefault();
+    const heading = document.getElementById(categoryId);
+    // The stylesheet makes this smooth, and turns that off under reduced motion.
+    heading?.scrollIntoView();
+    heading?.focus({ preventScroll: true });
   }
 
   return (
+    <nav className="pills" aria-label="Menu categories" ref={bar} data-testid="menu-pills">
+      {categories.map((category) => (
+        <a
+          key={category.id}
+          className={category.id === currentId ? 'pill active' : 'pill'}
+          href={`#${category.id}`}
+          aria-current={category.id === currentId ? 'true' : undefined}
+          onClick={(event) => goTo(event, category.id)}
+          data-testid={`menu-pill-${category.id}`}
+        >
+          {category.name}
+        </a>
+      ))}
+    </nav>
+  );
+}
+
+function MenuItemCard({ item, onAdd }) {
+  return (
+    <article className={item.soldOut ? 'card item soldout' : 'card item'} data-testid={`menu-item-${item.id}`}>
+      <div className="tile" aria-hidden="true">{item.image}</div>
+      <div>
+        <h3>{item.name}</h3>
+        <p>{item.description}</p>
+        <div className="price-row">
+          <span className="price">{formatMoney(item.priceCents)}</span>
+          {item.soldOut ? (
+            <span className="soldout-tag" data-testid={`menu-sold-out-${item.id}`}>Sold out</span>
+          ) : (
+            <button className="add" aria-label={`Add ${item.name}`} onClick={() => onAdd(item)} data-testid={`menu-add-${item.id}`}>+ Add</button>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function ViewCartBar({ tableId, lines }) {
+  const count = cartItemCount(lines);
+  if (count === 0) return null;
+  return (
+    <div className="summary">
+      <Link className="btn" to={`/table/${tableId}/cart`} data-testid="menu-view-cart">
+        <span>View cart · {count} {count === 1 ? 'item' : 'items'}</span>
+        <span className="price">{formatMoney(cartTotalCents(lines))}</span>
+      </Link>
+    </div>
+  );
+}
+
+const NO_CATEGORIES = [];
+
+/** Contract C5's /table/:id: the Menu, BR1.1 to BR1.4. */
+export function MenuScreen() {
+  const [menu, setMenu] = useState(null);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const lastRead = useRef(0);
+
+  const loadMenu = useCallback(async () => {
+    const read = ++lastRead.current;
+    setLoadFailed(false);
+    try {
+      const loaded = await getMenu();
+      if (read === lastRead.current) setMenu(loaded);
+    } catch (error) {
+      console.warn('The menu could not be loaded.', error);
+      if (read === lastRead.current) setLoadFailed(true);
+    }
+  }, []);
+
+  const { table, cart, closed, reconnecting } = useDinerSession({
+    onReload: loadMenu,
+    onEvent(type, data) {
+      if (type !== 'menu.item-updated') return;
+      setMenu((current) => current && {
+        categories: current.categories.map((category) => ({
+          ...category,
+          items: category.items.map((item) => (item.id === data.item.id ? { ...item, soldOut: data.item.soldOut } : item)),
+        })),
+      });
+    },
+  });
+  const { lines } = useCart(cart);
+  const categories = menu?.categories ?? NO_CATEGORIES;
+  const currentId = useCurrentCategory(categories);
+
+  if (closed) return <ClosedScreen title="Menu" label={table.label} />;
+
+  // A failed reload keeps the menu on screen; the error replaces only an empty one.
+  const showError = loadFailed && !menu;
+  return (
     <>
-      <header className="topbar">
-        <div className="title"><h1>Menu</h1><span className="muted">{table.label}</span></div>
-      </header>
+      <TopBar title="Menu" label={table.label}>
+        {menu && <CategoryPills categories={categories} currentId={currentId} />}
+      </TopBar>
       <main className="content">
-        {loadFailed && (
+        {reconnecting && <ReconnectingNotice />}
+        {!menu && !showError && <Skeletons testId="menu-loading" />}
+        {showError && (
           <>
-            <div className="notice error" role="alert" data-testid="menu-error">
-              <span aria-hidden="true">⚠</span>
-              <span>We couldn't load the menu. Check your connection and try again.</span>
-            </div>
+            <Notice kind="error" icon="⚠" testId="menu-error">We couldn't load the menu. Check your connection and try again.</Notice>
             <button className="btn secondary" onClick={loadMenu} data-testid="menu-error-retry">Try again</button>
           </>
         )}
-        {menu?.categories.map((category) => (
-          <section key={category.id} data-testid={`menu-category-${category.id}`}>
-            <h2>{category.name}</h2>
-            {category.items.map((item) => (
-              <p key={item.id} className="line">
-                <span>{item.image} {item.name} · {formatMoney(item.priceCents)}</span>
-                <button className="add" onClick={() => addItem(item.id)} aria-label={`Add ${item.name}`} data-testid={`menu-add-${item.id}`}>+ Add</button>
-              </p>
-            ))}
+        {categories.map((category) => (
+          <section className="menu-category" key={category.id} data-testid={`menu-category-${category.id}`}>
+            <h2 id={category.id} tabIndex={-1}>{category.name}</h2>
+            {category.items.map((item) => <MenuItemCard key={item.id} item={item} onAdd={cart.add} />)}
           </section>
         ))}
-        {result && (
-          <div className={result.isError ? 'notice error' : 'notice info'} role="status" data-testid="menu-order-result">
-            {result.message}
-          </div>
-        )}
       </main>
-      <div className="summary">
-        <button className="btn" onClick={submitOrder} disabled={itemCount === 0} data-testid="menu-place-order">Place order</button>
-      </div>
+      <ViewCartBar tableId={table.id} lines={lines} />
     </>
   );
 }

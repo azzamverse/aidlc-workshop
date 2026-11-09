@@ -1,3 +1,4 @@
+import { whenRequestSent } from '../timing';
 import { spawn, type ChildProcess } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -8,7 +9,8 @@ const LIVE_LIMIT_MS = 2000;
 
 async function placeCoffeeFrom(page: Page) {
   await page.getByTestId('menu-add-coffee').click();
-  await page.getByTestId('menu-place-order').click();
+  await page.getByTestId('tab-cart').click();
+  await page.getByTestId('cart-place-order').click();
 }
 
 test('an order from /table/5 shows on /staff within 2 seconds, with no refresh', async ({ browser, baseURL }) => {
@@ -20,15 +22,17 @@ test('an order from /table/5 shows on /staff within 2 seconds, with no refresh',
   const ordersBefore = await staff.getByTestId('board-table-5').locator('.order').count();
   await diner.goto('/table/5');
   await diner.getByTestId('menu-add-cheeseburger').click();
+  await diner.getByTestId('tab-cart').click();
 
-  const started = Date.now();
-  await diner.getByTestId('menu-place-order').click();
+  const sent = whenRequestSent(diner, 'POST', '/orders');
+  await diner.getByTestId('cart-place-order').click();
   await expect(staff.getByTestId('board-table-5').locator('.order')).toHaveCount(ordersBefore + 1, {
     timeout: LIVE_LIMIT_MS,
   });
-  expect(Date.now() - started).toBeLessThanOrEqual(LIVE_LIMIT_MS);
+  const arrived = Date.now();
+  expect(arrived - (await sent)).toBeLessThanOrEqual(LIVE_LIMIT_MS);
 
-  await expect(diner.getByTestId('menu-order-result')).toContainText(/Order #\d+ placed/);
+  await expect(diner.getByTestId('order-placed')).toContainText(/Order #\d+ placed/);
   await expect(staff.getByTestId('board-table-5').locator('.order').first()).toContainText('1 × Cheeseburger');
   await expect(staff.getByTestId('board-table-5').locator('.order').first()).toContainText('Pending');
 });
@@ -47,7 +51,7 @@ test('every screen address serves the app and the tabs move between them', async
   await expect(page.getByRole('heading', { name: 'Menu' })).toBeVisible();
   await page.getByTestId('tab-cart').click();
   await expect(page).toHaveURL(/\/table\/3\/cart$/);
-  await expect(page.getByRole('heading', { name: 'Cart' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Your cart', exact: true })).toBeVisible();
   await page.getByTestId('tab-my-orders').click();
   await expect(page).toHaveURL(/\/table\/3\/orders$/);
   await expect(page.getByRole('heading', { name: 'My orders' })).toBeVisible();
@@ -104,7 +108,7 @@ test.describe('a server of its own', () => {
     await startServer();
     await page.goto(`${ownUrl}/table/5`);
     await placeCoffeeFrom(page);
-    await expect(page.getByTestId('menu-order-result')).toContainText('Order #1 placed');
+    await expect(page.getByTestId('order-placed')).toContainText('Order #1 placed');
 
     await stopServer();
     await startServer();

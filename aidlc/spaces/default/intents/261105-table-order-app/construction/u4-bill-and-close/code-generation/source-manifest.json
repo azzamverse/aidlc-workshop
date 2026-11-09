@@ -1,0 +1,15 @@
+{
+  "stage": "code-generation",
+  "unit": "u4-bill-and-close",
+  "version": 1,
+  "writes": [
+    { "path": "server/billing/" },
+    { "path": "server/app.js" },
+    { "path": "client/src/screens/bill/" },
+    { "path": "client/src/shared/api.js" },
+    { "path": "client/src/shared/styles.css" },
+    { "path": "tests/server/billing.test.js" },
+    { "path": "tests/server/billing-api.test.js" },
+    { "path": "e2e/u4-bill-and-close/" }
+  ]
+}

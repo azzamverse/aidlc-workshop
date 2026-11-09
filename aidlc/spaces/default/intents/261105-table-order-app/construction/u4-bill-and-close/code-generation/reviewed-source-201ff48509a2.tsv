@@ -1,0 +1,12 @@
+manifest	33e40ef497d8ab08706f6db0f0add4eccce39fb1fc415713a82fb8f57c8711ec	-
+	client/src/screens/bill/TableBillScreen.jsx	100644	a06ca9e28cb59d59fe9bb353878a3eedab25eb6ff3a39262df7b814c703ffa63
+	client/src/shared/api.js	100644	6d88e5835531aa6314834cdfa9fdea434f2d8cda30d33bbb80f7979e3e10327e
+	client/src/shared/styles.css	100644	aff7d13b6fbd635589b44e3af7fee8ba35fd82cdf0b58e216de1fbde57413342
+	e2e/u4-bill-and-close/bill.spec.ts	100644	b958f957ef36996c81aeac33df760694afdb097d21d593dda20b22a4162b3739
+	e2e/u4-bill-and-close/close.spec.ts	100644	04bb7dac7284f709f02eeb42f5ae980b8b904510bf196ae6d9012c38da9f477f
+	e2e/u4-bill-and-close/helpers.ts	100644	2d70a72a2393284bfed9d47f659ecd9c6da9299206924f0312a06e702248f98f
+	e2e/u4-bill-and-close/mockup-match.spec.ts	100644	027764ff4c34a776ccfcc8e007498d2292bd792042e460b174c430e0d47ca7d3
+	server/app.js	100644	bd074f5b5aa4c99c105c2da94b95735ce8751f94c0dfa3f99e4add92eeb4680b
+	server/billing/service.js	100644	15016cd5a13dd1d2c1c915a3d5f16b913ba4eb4331443e74ea1a4d264e4f5526
+	tests/server/billing-api.test.js	100644	209dca693a00de7e0b152d7302b8dc8196facad5660095c770a1bfbf9e7b9d5f
+	tests/server/billing.test.js	100644	e4223d590a02e9a2d853883a7de589c867ecad0164fc4251bc9e4fd8a43c6eb1

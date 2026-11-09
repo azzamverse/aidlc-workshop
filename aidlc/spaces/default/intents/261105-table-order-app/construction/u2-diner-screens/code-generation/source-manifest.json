@@ -1,0 +1,12 @@
+{
+  "stage": "code-generation",
+  "unit": "u2-diner-screens",
+  "version": 1,
+  "writes": [
+    { "path": "client/src/screens/diner/" },
+    { "path": "client/src/shared/styles.css" },
+    { "path": "tests/client/" },
+    { "path": "e2e/u2-diner-screens/" },
+    { "path": "e2e/u1-walking-skeleton/skeleton.spec.ts" }
+  ]
+}

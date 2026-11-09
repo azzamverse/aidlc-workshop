@@ -1,0 +1,11 @@
+{
+  "stage": "code-generation",
+  "unit": "u3-kitchen-board",
+  "version": 1,
+  "writes": [
+    { "path": "client/src/screens/kitchen/" },
+    { "path": "client/src/shared/styles.css" },
+    { "path": "tests/client/boardLogic.test.js" },
+    { "path": "e2e/u3-kitchen-board/" }
+  ]
+}

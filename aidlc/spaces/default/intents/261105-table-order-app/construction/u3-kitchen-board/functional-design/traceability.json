@@ -1,0 +1,27 @@
+{
+  "stage": "functional-design",
+  "unit": "u3-kitchen-board",
+  "upstream_ids": ["AC3.1.1","AC3.1.2","AC3.1.3","AC3.1.4","AC3.2.1","AC3.2.2","AC3.2.3","AC3.2.4","AC3.3.1","AC3.3.2","AC3.3.3","AC5.3.1","AC5.3.2","AC5.3.3"],
+  "coverage": [
+    { "id": "AC3.1.1", "status": "OK", "target": "BR1.1" },
+    { "id": "AC3.1.2", "status": "OK", "target": "BR2.1" },
+    { "id": "AC3.1.3", "status": "OK", "target": "BR2.2" },
+    { "id": "AC3.1.4", "status": "OK", "target": "BR2.3" },
+    { "id": "AC3.2.1", "status": "OK", "target": "BR3.1" },
+    { "id": "AC3.2.2", "status": "OK", "target": "BR3.1" },
+    { "id": "AC3.2.3", "status": "OK", "target": "BR3.1" },
+    { "id": "AC3.2.4", "status": "OK", "target": "BR3.2" },
+    { "id": "AC3.3.1", "status": "OK", "target": "BR4.2" },
+    { "id": "AC3.3.2", "status": "OK", "target": "BR4.2" },
+    { "id": "AC3.3.3", "status": "OK", "target": "BR4.2" },
+    { "id": "AC5.3.1", "status": "OK", "target": "BR5.1" },
+    { "id": "AC5.3.2", "status": "OK", "target": "BR1.2" },
+    { "id": "AC5.3.3", "status": "OK", "target": "BR5.2" }
+  ],
+  "reverse": [
+    { "id": "BR1.2", "status": "N/A", "target": "supports FR6.3" },
+    { "id": "BR2.4", "status": "N/A", "target": "supports AC4.2.1, delivered with u4-bill-and-close" },
+    { "id": "BR3.3", "status": "N/A", "target": "visible failures, NFR11" },
+    { "id": "BR4.1", "status": "N/A", "target": "supports FR8.1" }
+  ]
+}
