@@ -1,0 +1,13 @@
+[
+  {
+    "uuid": "01a1aa6d-f63a-73c6-955b-84d2c21b2072",
+    "slug": "table-order-app",
+    "dirName": "261105-table-order-app",
+    "scope": "workshop",
+    "repos": [
+      "table-order"
+    ],
+    "status": "in-flight",
+    "request": "1cb66865"
+  }
+]

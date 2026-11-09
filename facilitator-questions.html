@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Table Order workshop: the questions every team gets</title>
+<style>
+  :root {
+    --ink: #1d2530;
+    --muted: #5a6573;
+    --line: #d9dee5;
+    --paper: #ffffff;
+    --soft: #f5f7fa;
+    --rec-bg: #e8f5ec;
+    --rec-ink: #145c32;
+    --rec-line: #7cc496;
+    --chose-bg: #fff6e0;
+    --chose-line: #e3b54a;
+    --why-bg: #eef3fb;
+    --why-line: #8fb0e0;
+    --note-bg: #fdf0ef;
+    --note-line: #e09a92;
+    --accent: #2f5d9e;
+  }
+  @page { size: A4; margin: 16mm 15mm 16mm 15mm; }
+  * { box-sizing: border-box; }
+  html { background: var(--paper); }
+  body {
+    margin: 0 auto; max-width: 190mm; padding: 16px;
+    background: var(--paper); color: var(--ink);
+    font: 11pt/1.45 "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  h1 { font-size: 20pt; margin: 0 0 4pt; line-height: 1.2; }
+  h2 { font-size: 15pt; margin: 0 0 8pt; padding-bottom: 4pt; border-bottom: 2px solid var(--accent); color: var(--accent); }
+  h3 { font-size: 12.5pt; margin: 14pt 0 6pt; }
+  p { margin: 0 0 6pt; }
+  .sub { color: var(--muted); margin-bottom: 12pt; }
+  .phase { break-before: page; page-break-before: always; }
+  .phase:first-of-type { break-before: auto; page-break-before: auto; }
+  .stage-meta { color: var(--muted); font-size: 10pt; margin: -2pt 0 6pt; }
+  .q { border: 1px solid var(--line); border-radius: 6px; padding: 8pt 10pt; margin: 0 0 8pt; break-inside: avoid; page-break-inside: avoid; background: var(--paper); }
+  .q-title { font-weight: 700; margin-bottom: 4pt; }
+  .role { display: inline-block; font-size: 9pt; font-weight: 600; color: var(--accent); border: 1px solid var(--why-line); border-radius: 3px; padding: 0 4pt; margin-right: 4pt; vertical-align: 1px; }
+  .ctx { color: var(--muted); font-size: 10pt; margin-bottom: 4pt; }
+  ol.opts { list-style: none; padding: 0; margin: 0 0 6pt; }
+  ol.opts li { padding: 2pt 6pt; margin: 1pt 0; border-left: 3px solid transparent; }
+  ol.opts li b.k { display: inline-block; width: 14pt; }
+  ol.opts li.rec { background: var(--rec-bg); border-left-color: var(--rec-line); color: var(--rec-ink); }
+  ol.opts li.rec::after { content: "  Recommended"; font-size: 8.5pt; font-weight: 700; letter-spacing: .3px; }
+  .chose, .why, .ctxline { font-size: 10pt; padding: 3pt 6pt; border-radius: 4px; margin-top: 3pt; }
+  .chose { background: var(--chose-bg); border-left: 3px solid var(--chose-line); }
+  .why { background: var(--why-bg); border-left: 3px solid var(--why-line); }
+  .ctxline { background: var(--soft); border-left: 3px solid var(--line); font-style: italic; }
+  .none { color: var(--muted); font-style: italic; border: 1px dashed var(--line); border-radius: 6px; padding: 6pt 10pt; margin-bottom: 8pt; }
+  .assume { font-size: 10pt; color: var(--muted); margin: 0 0 8pt; }
+  .gate { font-size: 10pt; margin: 0 0 10pt; }
+  .reply { font-family: Consolas, "Courier New", monospace; font-weight: 700; background: var(--soft); border: 1px solid var(--line); border-radius: 3px; padding: 0 4pt; white-space: nowrap; }
+  table { width: 100%; border-collapse: collapse; font-size: 10pt; margin: 4pt 0 10pt; }
+  th, td { border: 1px solid var(--line); padding: 4pt 6pt; text-align: left; vertical-align: top; }
+  th { background: var(--soft); }
+  tr { break-inside: avoid; page-break-inside: avoid; }
+  .notes { border: 2px solid var(--note-line); background: var(--note-bg); border-radius: 6px; padding: 8pt 12pt; margin: 12pt 0; break-inside: avoid; }
+  .notes h3 { margin-top: 0; }
+  .notes ul { margin: 0; padding-left: 16pt; }
+  .count { width: auto; }
+  @media (max-width: 600px) { body { padding: 16px; font-size: 10.5pt; } .reply { white-space: normal; } }
+</style>
+</head>
+<body>
+
+<section class="phase">
+<h1>Table Order workshop: the questions every team gets</h1>
+<p class="sub">The fixed question script AI-DLC follows at every stage. It is taken from the 2026-11-03 dry run. Every team gets the same questions, in the same order, with the same options. The recommended option is highlighted in green. The dry-run team's answer is shown in amber.</p>
+
+<div class="notes">
+<h3>Facilitator notes</h3>
+<ul>
+  <li>Keep teams on the recommended options unless the point of the exercise is to explore.</li>
+  <li>A team that picks a different option will still see the later questions worded the same way, but its app may come out different.</li>
+  <li>The run is timeboxed to 5 hours. Code Generation has 45 min for Bolt 1, 30 min for Bolts 2 and 3 together, and 25 min for Bolt 4.</li>
+  <li>The dry-run team picked <b>Dark</b> for the look and feel (2.5 Q1), but the recommendation is <b>Warm and calm</b>. A team that follows the recommendation will see a lighter app than the dry-run demo.</li>
+  <li>After a <span class="reply">Resume</span>, check that the dashboard no longer says Paused and that the timer is running.</li>
+</ul>
+</div>
+
+<h3>Questions per stage</h3>
+<table class="count">
+  <tr><th>Stage</th><th>Questions in the script</th><th>Limit</th></tr>
+  <tr><td>1.1 Intent Capture</td><td>6</td><td>6</td></tr>
+  <tr><td>1.4 Scope Definition</td><td>3</td><td>5</td></tr>
+  <tr><td>2.3 Requirements Analysis</td><td>5, plus the first Major review finding at the gate</td><td>5</td></tr>
+  <tr><td>2.4 User Stories</td><td>0</td><td>2</td></tr>
+  <tr><td>2.5 Refined Mockups</td><td>3</td><td>3</td></tr>
+  <tr><td>2.6 Domain Design</td><td>1, at the gate</td><td>2</td></tr>
+  <tr><td>2.7 Units Generation</td><td>1</td><td>1</td></tr>
+  <tr><td>2.8 Contract Design</td><td>0</td><td>1</td></tr>
+  <tr><td>2.9 Delivery Planning</td><td>1 (the verification command)</td><td>1</td></tr>
+  <tr><td>3.1 Functional Design</td><td>U1 0, U2 0, U3 1, U4 0</td><td>1 per Unit</td></tr>
+  <tr><td>3.5 Code Generation, 3.6 Build and Test</td><td>Plan approvals and sign-offs only</td><td>None besides those</td></tr>
+</table>
+
+<h3>Before the first question</h3>
+<p class="gate">AI-DLC asks "How would you like to answer the questions?" (<i>Guide me</i>, <i>I'll edit the file</i>, <i>Chat</i>). Teams reply <span class="reply">Guide me</span>. The dry-run team chose Guide me.</p>
+</section>
+
+<!-- ============ IDEATION ============ -->
+<section class="phase">
+<h2>Ideation</h2>
+
+<h3>1.1 Intent Capture</h3>
+<p class="stage-meta">6 questions (the limit is 6)</p>
+
+<div class="q">
+  <div class="q-title"><span class="role">Product Owner</span>Q1. What problem are we solving?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> Diners wait for staff to take their order and cannot see how it is progressing, while staff juggle orders without one live view of every table. Ordering from the table, a live kitchen board and a one-click bill and close remove the wait and the guesswork.</li>
+    <li><b class="k">B.</b> Mainly a staff problem: the kitchen and floor lose track of orders; the diner side is secondary.</li>
+    <li><b class="k">C.</b> Mainly a diner problem: diners want to order at their own pace; the staff side is secondary.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> It sets whether the diner side, the staff side or both get full screens. B or C turns one side into a supporting tool.</div>
+</div>
+
+<div class="q">
+  <div class="q-title"><span class="role">Product Owner</span>Q2. Who uses the app?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> Two user groups: diners seated at a table (customer view), and restaurant staff, with floor and kitchen staff sharing the one staff view.</li>
+    <li><b class="k">B.</b> Three user groups: diners, floor staff and kitchen staff, each needing its own view.</li>
+    <li><b class="k">C.</b> Diners only; the staff view is a supporting tool, not a target user.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> It sets the personas and how many views get built. B adds a third view.</div>
+</div>
+
+<div class="q">
+  <div class="q-title"><span class="role">Product Owner</span>Q3. How will we know it worked?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> The brief's checks: new order on the staff board within 2 seconds, highlighted; status changes show on the diner's view; cart survives a refresh; closing a table archives and resets it; the five screens match their mockups; <code>npm install &amp;&amp; npm start</code> starts everything at localhost:3000.</li>
+    <li><b class="k">B.</b> Only the live-update check: a new order on the staff board within 2 seconds.</li>
+    <li><b class="k">C.</b> A full diner journey works end to end, with no specific timings.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> These become the success measures SM1 to SM6, which every later test checks.</div>
+</div>
+
+<div class="q">
+  <div class="q-title"><span class="role">Product Owner</span>Q4. What does this first version leave out?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> Exactly the brief's out-of-scope list: payments, QR code generation, multi-language, menu management, past-visit history, notifications and cloud deployment. It runs locally only.</li>
+    <li><b class="k">B.</b> The brief's list, plus anything beyond the five screens (no extra admin or settings screens).</li>
+    <li><b class="k">C.</b> Nothing is left out; the brief's out-of-scope list can be revisited.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> It fixes the scope boundary. B would rule out the Menu availability panel that comes later.</div>
+</div>
+
+<div class="q">
+  <div class="q-title"><span class="role">Sponsor</span>Q5. Why are we building this now?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> It is the workshop exercise: the team builds a realistic app end to end in one session (about 5 hours), with AI-DLC guiding each step.</li>
+    <li><b class="k">B.</b> A real restaurant has asked for it.</li>
+    <li><b class="k">C.</b> A product opportunity we want to test with restaurants.</li>
+    <li><b class="k">D.</b> Not identified.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> It sets the 5-hour timebox that the scope and the Bolt plan are cut to.</div>
+</div>
+
+<div class="q">
+  <div class="q-title"><span class="role">Sponsor</span>Q6. Who decides, and who has a say?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> The workshop team plays every role. The Product Owner decides scope and the brief's five open questions; the rest of the team reviews and approves each step.</li>
+    <li><b class="k">B.</b> A restaurant owner decides; diners and staff only influence.</li>
+    <li><b class="k">C.</b> One facilitator decides everything; the team only observes.</li>
+    <li><b class="k">D.</b> Not identified.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> It decides who answers the open product questions and approves every gate.</div>
+</div>
+
+<p class="assume"><b>Assumptions accepted as a whole</b> (reply <span class="reply">A. Accept assumptions</span>):</p>
+<ul class="assume">
+  <li>The five open questions are decided at Requirements Analysis.</li>
+  <li>There is no separate status report.</li>
+  <li>SM2's limit is 2 seconds.</li>
+  <li>A closed table shows an empty cart and no orders.</li>
+  <li>Restaurant outcomes are not measured.</li>
+</ul>
+<p class="assume">In the dry run, the team first turned the first two assumptions into questions (Q7 and Q8) and answered both with the recommended option. The script keeps them as assumptions so the stage stays at 6 questions.</p>
+<p class="gate">Gate: <span class="reply">Approve</span></p>
+
+<h3>1.4 Scope Definition</h3>
+<p class="stage-meta">3 questions (the limit is 5). What is left out, the build order and the five open questions are already settled.</p>
+
+<div class="q">
+  <div class="q-title"><span class="role">Product Owner</span>Q1. What is the smallest version that delivers value?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> All three are Must Have: together they make the full journey from ordering to the next diner sitting down, and each success measure needs one of them.</li>
+    <li><b class="k">B.</b> Features 1 and 2 are Must Have; bill and close (3) is Should Have.</li>
+    <li><b class="k">C.</b> Only ordering from the table (1) is Must Have; the staff features are Should Have.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> It sets which features are built for sure. B or C makes Bolt 4, or the staff Bolts, droppable.</div>
+</div>
+
+<div class="q">
+  <div class="q-title"><span class="role">Product Owner</span>Q2. Is anything inside the three features only nice to have?</div>
+  <p class="ctx">The candidates are menu images, the new-order highlight, and the cart surviving a refresh.</p>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> None: everything the brief lists inside the three features is Must Have, because the success measures test the highlight and the cart surviving a refresh, and the mockups show the images.</li>
+    <li><b class="k">B.</b> Menu item images are Should Have; the rest is Must Have.</li>
+    <li><b class="k">C.</b> Images and the new-order highlight are Should Have; the rest is Must Have.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> It sets the cut list if time runs short. With A, nothing is cut in advance.</div>
+</div>
+
+<div class="q">
+  <div class="q-title"><span class="role">Delivery Lead</span>Q3. Are there hard deadlines tied to particular capabilities?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> One deadline for everything: the whole app is built, tested and signed off within the workshop session of about 5 hours; no capability has a deadline of its own.</li>
+    <li><b class="k">B.</b> Ordering from the table must be working by the middle of the session, before the staff features.</li>
+    <li><b class="k">C.</b> No deadline at all.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> B would change what is built first and break the Bolt order.</div>
+</div>
+
+<p class="assume"><b>Assumptions accepted at the gate:</b></p>
+<ul class="assume">
+  <li>The value stream follows one table visit.</li>
+  <li>Cuts are decided at the next approval if needed.</li>
+  <li>The open questions wait for Requirements Analysis.</li>
+</ul>
+<p class="gate">If AI-DLC asks "Does this all look correct?", reply <span class="reply">Looks correct</span>. Gate: <span class="reply">Approve</span></p>
+</section>
+
+<!-- ============ INCEPTION ============ -->
+<section class="phase">
+<h2>Inception</h2>
+
+<h3>2.3 Requirements Analysis</h3>
+<p class="stage-meta">5 questions (the limit is 5): the brief's five open questions.</p>
+
+<div class="q">
+  <div class="q-title"><span class="role">Product Owner</span>Q1. Can a customer cancel an order, and up to which status?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> Yes, while the order is still Pending. Once the kitchen moves it to Preparing it can no longer be cancelled. A cancelled order shows as Cancelled under "My orders" and on the kitchen board, and is left off the bill.</li>
+    <li><b class="k">B.</b> No: customers cannot cancel; they ask a member of staff.</li>
+    <li><b class="k">C.</b> Yes, up to and including Preparing; only a Completed order cannot be cancelled.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> It adds or removes the "Cancel order" button, the Cancelled status, and the cancel-refused message.</div>
+</div>
+
+<div class="q">
+  <div class="q-title"><span class="role">Product Owner</span>Q2. Can a table be closed while it has orders that are Pending or Preparing?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> No. "Close table" stays unavailable until every order at the table is Completed or Cancelled, and the bill screen says which orders are still open.</li>
+    <li><b class="k">B.</b> Yes, after a warning that names the unfinished orders; they are archived as they are.</li>
+    <li><b class="k">C.</b> Yes, with no warning.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> It sets the close rule, the "Still open" notice on the bill, and the close-refused case in Bolt 4.</div>
+</div>
+
+<div class="q">
+  <div class="q-title"><span class="role">Product Owner</span>Q3. How do staff get into the staff view?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> No protection: the staff view opens directly. The app runs only on the local machine during the workshop, so anyone with access to that machine is treated as staff.</li>
+    <li><b class="k">B.</b> A shared staff PIN, asked for once when the staff view opens.</li>
+    <li><b class="k">C.</b> A login with a name and password for each member of staff.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> B or C adds a sign-in screen and its tests, which do not fit the timebox.</div>
+</div>
+
+<div class="q">
+  <div class="q-title"><span class="role">Product Owner</span>Q4. What happens when an item sells out mid-service?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> Staff mark the item as sold out (and back again) from the staff view. Diners see "Sold out" and cannot add it. If it is already in a cart, placing the order says which item sold out and takes it out; the rest of the cart is kept.</li>
+    <li><b class="k">B.</b> Nothing in the app: staff tell the diner, and the order goes ahead as normal.</li>
+    <li><b class="k">C.</b> As A, and staff can also remove a sold-out item from an order already placed.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> It adds the sold-out switches, the "Sold out" badges and the sold-out refusal when an order is placed.</div>
+</div>
+
+<div class="q">
+  <div class="q-title"><span class="role">Product Owner</span>Q5. Is the bill one combined total, or listed per order?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> Listed per order: each order with its number, items, quantities, prices and subtotal, then one combined total for the table.</li>
+    <li><b class="k">B.</b> One combined list: the same item ordered more than once is merged into one line, then one total.</li>
+    <li><b class="k">C.</b> One combined total only, with no item lines.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> It sets the Table Bill layout and its calculation rules.</div>
+</div>
+
+<div class="q">
+  <div class="q-title"><span class="role">Product Owner</span>R-01 (gate, first Major review finding). When staff close a table, what happens on diner phones at that table that are already open?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> The close reaches open devices live: within 2 seconds each one empties its cart, clears "My orders" and shows "This table was closed"; a device that was offline does the same when it reconnects.</li>
+    <li><b class="k">B.</b> Devices reset the next time their page is refreshed.</li>
+    <li><b class="k">C.</b> A device whose cart dates from before the close is refused, and told to reload.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A, then Approve</div>
+  <div class="why"><b>Why it matters:</b> It adds the TableClosed live event and the diner reset (FR9.3, FR9.5). This is the run's one team-decided Major finding; the AI fixes every later one itself.</div>
+  <div class="ctxline">Ask this as written. It assumes the requirements draft did not yet say what open diner devices do when their table is closed. If your draft already covers this, say so and ask it anyway.</div>
+</div>
+
+<p class="assume"><b>Assumptions accepted at the gate (12):</b></p>
+<ul class="assume">
+  <li>2-second status updates.</li>
+  <li>One cart per device.</li>
+  <li>Unique order numbers.</li>
+  <li>1 to 20 per cart line.</li>
+  <li>The highlight lasts until Preparing.</li>
+  <li>Statuses only move forward.</li>
+  <li>A sold-out mark is not menu management.</li>
+  <li>No tax.</li>
+  <li>Archived visits are hidden.</li>
+  <li>No close without orders.</li>
+  <li>Words or icons as well as colour.</li>
+  <li>The corner cases are defaults.</li>
+</ul>
+<p class="gate">Gate: <span class="reply">Approve</span></p>
+
+<h3>2.4 User Stories</h3>
+<div class="none">No questions (the limit is 2). Personas, priorities and behaviour are settled by earlier answers. Assumptions: journey grouping, and the one-command start story is written for staff. Gate: <span class="reply">Approve</span></div>
+
+<h3>2.5 Refined Mockups</h3>
+<p class="stage-meta">3 questions (the limit is 3). The screen states, accessibility, breakpoints and the team's Screen design rules (bottom tab bar, category pills, "+ Add" pill, smooth look) are already settled.</p>
+
+<div class="q">
+  <div class="q-title"><span class="role">Designer</span>Q1. What look and feel should the app have?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> Warm and calm: an off-white background, dark text, one terracotta accent color for main actions, rounded cards and large touch targets. Status colors (amber Pending, blue Preparing, green Completed, grey Cancelled) always come with a word and an icon.</li>
+    <li><b class="k">B.</b> Dark: a dark background on every screen, like a kitchen display, with bright status colors.</li>
+    <li><b class="k">C.</b> Plain: black and white with one blue accent and no decoration.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> B (Dark)</div>
+  <div class="why"><b>Why it matters:</b> It sets the design tokens every screen and every mockup-match check uses.</div>
+</div>
+
+<div class="q">
+  <div class="q-title"><span class="role">Product Owner</span>Q2. Which currency do prices show?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> US dollars, for example $4.50.</li>
+    <li><b class="k">B.</b> British pounds, for example £4.50.</li>
+    <li><b class="k">C.</b> Euros, for example €4.50.</li>
+    <li><b class="k">D.</b> Pakistani rupees, for example Rs 450.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> Every price on all five screens, and the seed menu, uses it.</div>
+</div>
+
+<div class="q">
+  <div class="q-title"><span class="role">Designer</span>Q3. Where do staff mark items as sold out?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> A "Menu availability" panel on the Kitchen Board screen, opened from a button in its header. It lists the 12 items with a Sold out switch each, so the app keeps its five screens.</li>
+    <li><b class="k">B.</b> A sixth screen, "Menu availability", linked from the Kitchen Board.</li>
+    <li><b class="k">C.</b> A switch next to each item on the Table Bill screen.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> It decides which Bolt builds the switches (Bolt 3 with A) and whether a sixth screen exists.</div>
+</div>
+
+<p class="assume"><b>Assumptions accepted at the gate:</b></p>
+<ul class="assume">
+  <li>Emoji item images.</li>
+  <li>The bill at <code>/staff/tables/:id</code>.</li>
+  <li>The mockup menu becomes the seed.</li>
+  <li>Order numbers are shown as "#15".</li>
+  <li>Icons sit next to words.</li>
+</ul>
+<p class="gate">Gate: <span class="reply">Approve</span>. The dry-run team chose Request Changes here (a bottom tab bar, category pills and a smoother look). Those changes are now in the project rules, so teams can approve.</p>
+
+<h3>2.6 Domain Design</h3>
+<p class="stage-meta">1 question, asked at the gate (the limit is 2)</p>
+<div class="q">
+  <div class="q-title"><span class="role">Architect</span>Q1. Which component split do you approve?</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> Option A: eight components (Menu, Tables, Ordering, Billing, LiveUpdates, DinerApp, StaffApp, Platform). There are no cycles, and the three later Bolts can be built in parallel.</li>
+    <li><b class="k">B.</b> Option B: merge Tables and Billing into Ordering. Fewer calls, but one large component and less parallel work.</li>
+    <li><b class="k">C.</b> Option C: one "Restaurant" server component. The simplest wiring, but no parallel build except the screens.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> Approve with Option A</div>
+  <div class="why"><b>Why it matters:</b> It decides whether Bolts 2, 3 and 4 can be built in parallel on top of the skeleton.</div>
+</div>
+<p class="gate">Reply: <span class="reply">Approve with Option A</span></p>
+
+<h3>2.7 Units Generation</h3>
+<p class="stage-meta">1 question (the limit is 1)</p>
+<div class="q">
+  <div class="q-title"><span class="role">Architect</span>Q1. Do you approve this decomposition plan? (U1 walking skeleton, U2 diner screens, U3 kitchen board, U4 bill and close)</div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> Approve Plan</li>
+    <li><b class="k">B.</b> Revise Plan</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> Approve Plan</div>
+  <div class="why"><b>Why it matters:</b> These four Units become the four Bolts and their folders.</div>
+</div>
+<p class="gate">Gate: <span class="reply">Approve</span></p>
+
+<h3>2.8 Contract Design</h3>
+<div class="none">No questions (the limit is 1). The brief settles HTTP plus Server-Sent Events, no public API, one error shape and a retry-safe placement key. Gate: <span class="reply">Approve</span></div>
+
+<h3>2.9 Delivery Planning</h3>
+<p class="stage-meta">1 question (the limit is 1), plus the build-order phrase</p>
+<div class="q">
+  <div class="q-title"><span class="role">Delivery Lead</span>Q1. Use this command to verify each completed Unit? <code>npm test &amp;&amp; npm run test:e2e</code></div>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> Approve</li>
+    <li><b class="k">B.</b> Request Changes</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> The build-order phrase first, then Approve</div>
+  <div class="why"><b>Why it matters:</b> This command decides whether every Unit counts as finished, and the dashboard reads its results.</div>
+</div>
+<p class="gate">When this question first appears, teams type <span class="reply">Build Bolt 1 on its own, then Bolts 2 and 3 in parallel, then Bolt 4 on its own</span>, then <span class="reply">Approve</span>. Gate: <span class="reply">Approve</span>. "Who builds them?": <span class="reply">Just me</span></p>
+</section>
+
+<!-- ============ CONSTRUCTION ============ -->
+<section class="phase">
+<h2>Construction</h2>
+
+<h3>3.1 Functional Design</h3>
+<p class="stage-meta">U1: 0 questions · U2: 0 questions · U3: 1 question · U4: 0 questions (the limit is 1 per Unit)</p>
+
+<div class="q">
+  <div class="q-title"><span class="role">Product Owner</span>U3 Q1. Which orders does the board highlight as "★ New"?</div>
+  <p class="ctx">FR6.2 keeps a new order highlighted until staff move it to Preparing, but the board mockup highlights #15 and not #14, which is also Pending.</p>
+  <ol class="opts">
+    <li class="rec"><b class="k">A.</b> Every Pending order, until it moves to Preparing or is cancelled. It reads the same on every staff screen and after a refresh, as FR6.2 says. The board mockup is updated so #14 is highlighted too.</li>
+    <li><b class="k">B.</b> Only orders that arrived while this board was open. That matches the mockup as drawn, but a refresh or a second staff screen loses the highlight.</li>
+    <li><b class="k">C.</b> Pending orders placed in the last 5 minutes.</li>
+    <li><b class="k">D.</b> Not yet defined.</li>
+  </ol>
+  <div class="chose"><b>What the dry-run team chose:</b> A</div>
+  <div class="why"><b>Why it matters:</b> It decides whether the highlight is server state (it survives a refresh and shows on every screen) or a single screen's memory.</div>
+  <div class="ctxline">Ask this as written. It assumes the board mockup highlights only one of the two Pending orders; if your mockup already highlights both, say so and ask it anyway.</div>
+</div>
+
+<div class="q">
+  <div class="q-title">Not asked: should Bolt 4's design wait?</div>
+  <p class="ctx">The project rules settle this: every remaining Unit is designed first, then there is one grouped code-plan approval. If AI-DLC asks anyway, reply <span class="reply">A. Design now, build later</span>.</p>
+  <div class="chose"><b>What the dry-run team chose:</b> "B. Wait entirely". The AI followed up, because waiting would cancel the parallel build of Bolts 2 and 3. The team then said: design Bolt 4 now, but pause it while Bolts 2 and 3 are built.</div>
+  <div class="why"><b>Why it matters:</b> "Wait entirely" breaks the parallel build. Bolt 4 is still built last either way.</div>
+</div>
+<p class="gate">Gate ("Approve the Functional Design for Bolts 2, 3 and 4?"): <span class="reply">Approve</span></p>
+
+<h3>3.5 Code Generation and 3.6 Build and Test</h3>
+<div class="none">No questions besides the plan approvals and the sign-offs. See Decision points. Build and Test was not reached in the dry run; its sign-off reply is <span class="reply">Approve</span>.</div>
+</section>
+
+<!-- ============ DECISION POINTS ============ -->
+<section class="phase">
+<h2>Decision points: the exact replies teams type</h2>
+<table>
+  <tr><th>When</th><th>AI-DLC asks</th><th>Teams reply</th></tr>
+  <tr><td>First question file</td><td>How would you like to answer the questions?</td><td><span class="reply">Guide me</span></td></tr>
+  <tr><td>Each assumptions list</td><td>Accept assumptions, or convert to follow-up questions?</td><td><span class="reply">A. Accept assumptions</span></td></tr>
+  <tr><td>Every stage gate</td><td>How do you want to proceed? (Approve / Request Changes)</td><td><span class="reply">Approve</span></td></tr>
+  <tr><td>Domain Design gate</td><td>Which way do you want to go?</td><td><span class="reply">Approve with Option A</span></td></tr>
+  <tr><td>Units Generation Q1</td><td>Do you approve this decomposition plan?</td><td><span class="reply">Approve Plan</span></td></tr>
+  <tr><td>Delivery Planning, first prompt</td><td>Use this command to verify each completed Unit?</td><td><span class="reply">Build Bolt 1 on its own, then Bolts 2 and 3 in parallel, then Bolt 4 on its own</span>, then <span class="reply">Approve</span></td></tr>
+  <tr><td>Start of Construction</td><td>Who builds them?</td><td><span class="reply">Just me</span></td></tr>
+  <tr><td>Each code plan (Bolt 1; Bolts 2 and 3 together; Bolt 4)</td><td>Approve the code plan for …?</td><td><span class="reply">Approve Plan</span></td></tr>
+  <tr><td>Each Bolt sign-off (after trying the app)</td><td>Approve this completed …? / Swarm batch approval</td><td><span class="reply">Approve</span></td></tr>
+  <tr><td>After Bolt 1's sign-off</td><td>Commit the approved walking skeleton now?</td><td><span class="reply">Commit it</span></td></tr>
+  <tr><td>After Bolt 1's sign-off</td><td>How should I continue building the remaining work?</td><td><span class="reply">Review each checkpoint</span></td></tr>
+  <tr><td>Before each merge back</td><td>May I commit the approved documents / records in the main folder now?</td><td><span class="reply">Commit it</span></td></tr>
+  <tr><td>If the parallel build fails</td><td></td><td><span class="reply">build them one at a time instead</span></td></tr>
+  <tr><td>Any time</td><td>To stop for a break</td><td><span class="reply">Pause</span></td></tr>
+  <tr><td>Any time</td><td>To carry on after a break</td><td><span class="reply">Resume</span></td></tr>
+</table>
+
+<div class="notes">
+<h3>Facilitator notes</h3>
+<ul>
+  <li>Keep teams on the recommended options unless the point of the exercise is to explore.</li>
+  <li>A team that picks a different option will see later questions worded the same way, but its app may come out different.</li>
+  <li>The whole run is timeboxed to 5 hours.</li>
+</ul>
+</div>
+</section>
+
+</body>
+</html>
