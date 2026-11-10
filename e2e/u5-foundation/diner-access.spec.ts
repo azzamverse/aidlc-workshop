@@ -51,13 +51,13 @@ test('the My orders pills swap views, each loading its own file only when opened
   await expect(page.getByTestId('orders-empty')).toBeVisible();
   expect(scripts.some((path) => path.includes('LivingTable'))).toBe(false);
 
-  for (const [pill, slot, file] of [
-    ['table', 'slot-living-table', 'LivingTable'],
-    ['kitchen', 'slot-kitchen-theatre', 'KitchenTheatre'],
-    ['bottle', 'slot-spin-the-bottle', 'SpinTheBottle'],
+  for (const [pill, slot, file, title] of [
+    ['table', 'slot-living-table', 'LivingTable', 'The Living Table'],
+    ['kitchen', 'slot-kitchen-theatre', 'KitchenTheatre', 'Kitchen Theatre'],
+    ['bottle', 'slot-spin-the-bottle', 'SpinTheBottle', 'Spin the Bottle'],
   ]) {
     await page.getByTestId(`orders-view-${pill}`).click();
-    await expect(page.getByTestId(slot)).toContainText('coming soon');
+    await expect(page.getByTestId(slot)).toContainText(title);
     expect(scripts.some((path) => path.includes(file))).toBe(true);
     await expect(page.getByTestId(`orders-view-${pill}`)).toHaveAttribute('aria-pressed', 'true');
   }
@@ -70,6 +70,6 @@ test('the Menu\'s Chef\'s Dice button opens its slot', async ({ page }) => {
   await openMenuReady(page, TABLE);
   await expect(page.getByTestId('slot-chefs-dice')).toHaveCount(0);
   await page.getByTestId('menu-chefs-dice').click();
-  await expect(page.getByTestId('slot-chefs-dice')).toContainText('coming soon');
+  await expect(page.getByTestId('slot-chefs-dice')).toContainText("Chef's Dice");
   await expect(page.getByTestId('menu-chefs-dice')).toHaveAttribute('aria-expanded', 'true');
 });

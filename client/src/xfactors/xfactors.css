@@ -1,0 +1,20 @@
+/* U7's scenes. Kept here so no shared stylesheet changes (C10). */
+.xf { display: grid; gap: var(--s3); min-width: 0; }
+.xf h2 { margin: 0; }
+.xf-stage { position: relative; height: 320px; border-radius: var(--r-card); overflow: hidden; background: radial-gradient(circle at 50% 30%, var(--plum), var(--night) 85%); box-shadow: var(--lift); touch-action: pan-y; }
+.xf-stage.short { height: 200px; }
+.xf-stage.grab { cursor: grab; }
+.xf-stage canvas { display: block; width: 100%; height: 100%; }
+.xf-row { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; }
+.xf-between { justify-content: space-between; }
+.xf-fallback { padding: var(--s3) var(--s4); border-radius: var(--r-card); background: var(--aubergine); color: var(--muted); font-size: 14px; }
+.xf-summary { display: flex; flex-wrap: wrap; gap: var(--s1) var(--s3); margin: 0; padding: 0; list-style: none; }
+.xf-stations { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s2); margin: 0; padding: 0; list-style: none; }
+.xf-station { display: grid; gap: var(--s2); align-content: start; min-height: 96px; padding: var(--s2); border-radius: 12px; background: var(--aubergine); }
+.xf-station-name { font: 700 13px var(--sans); color: var(--brass-soft); }
+.xf-tickets { display: grid; gap: var(--s2); margin: 0; padding: 0; list-style: none; }
+.xf-ticket { padding: var(--s2); border-radius: 6px; background: var(--cream); color: var(--night); font: 700 13px var(--sans); box-shadow: 0 8px 12px rgba(0,0,0,.5); }
+.xf-seats { display: inline-flex; align-items: center; gap: var(--s2); }
+.xf-seats button { width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--plum); color: var(--brass-soft); font: 700 20px var(--sans); cursor: pointer; }
+.xf-seats button[disabled] { color: var(--muted); opacity: .6; cursor: not-allowed; }
+.xf-seats output { min-width: 24px; text-align: center; font-weight: 700; }
