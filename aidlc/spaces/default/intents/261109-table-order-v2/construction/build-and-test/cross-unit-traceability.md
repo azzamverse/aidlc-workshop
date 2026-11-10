@@ -21,6 +21,6 @@ AC4.2.5 is met at the refusal only, the behaviour the team approved at sign-off 
 | ID | Why | How it was checked instead |
 |---|---|---|
 | NFR4 | No criterion links it | `e2e/build-and-test/v2-widths-and-keyboard.spec.ts`, Chromium |
-| NFR9 | A property of the whole suite | Partly run; see `test-results.md`. Unverified |
+| NFR9 | A property of the whole suite | Full run in all three browsers, 228 passed in each; see `test-results.md` |
 | NFR11 | No criterion links it | `e2e/u6-diner-staff-features/requests.spec.ts`, Chromium, and `server/app.js` logging |
 | NFR13 | No criterion links it | `e2e/u7-3d-xfactors/dice.spec.ts`, Chromium |

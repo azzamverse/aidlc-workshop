@@ -1,6 +1,6 @@
 # Build and Test Summary
 
-**Build:** success. **Readiness:** build-ready and test-ready in Chromium. Not shown ready for Safari, because the WebKit run was stopped at the team's request.
+**Build:** success. **Readiness:** build-ready and test-ready in Chromium, Google Chrome and WebKit.
 
 Test types: unit and server (Node), browser (Playwright in real browser engines), mockup match, keyboard, widths. Sources: each Unit's `code-generation-plan.md`, `unit-test-instructions.md` and `code-summary.md`, and `requirements.md`. No `nfr-requirements` or `nfr-design` stage ran in this plan.
 
@@ -18,7 +18,7 @@ Test types: unit and server (Node), browser (Playwright in real browser engines)
 | NFR6 | requirements.md | Keyboard, 44 px, words | Passed | U5, U6 and U7 specs and the new spec, Chromium | build-and-test | Met |
 | NFR7 | requirements.md | No motion when reduced | Passed | Chromium | build-and-test | Met |
 | NFR8 | requirements.md | Exact cents | Passed | Node | build-and-test | Met |
-| NFR9 | requirements.md | Whole suite in Chromium, Chrome, WebKit | Chromium 228/228; Chrome 227/228 plus one pass alone; WebKit stopped part way (saved report: 26 passed, 28 failed around the stop, 174 not run) | `test-results.md` | build-and-test | Unverified |
+| NFR9 | requirements.md | Whole suite in Chromium, Chrome, WebKit | 228/228 in each | `test-results.md`, `npm run test:e2e` | build-and-test | Met |
 | NFR10 | requirements.md | Settings from the environment | Passed | Node | build-and-test | Met |
 | NFR11 | requirements.md | Errors logged and shown in plain words | Passed | `requests.spec.ts`, `server/app.js`, Chromium | build-and-test | Met |
 | NFR12 | requirements.md | 3D fallback, still under reduced motion | Passed | U7 specs, Chromium | build-and-test | Met |
@@ -26,8 +26,7 @@ Test types: unit and server (Node), browser (Playwright in real browser engines)
 
 ## Known limitations
 
-- NFR9 is unverified: the team chose to stop the WebKit run. The target itself was not lowered.
-- One v1 bill test failed once in Google Chrome and passed alone. Cause not investigated.
+- One v1 bill test failed once in Google Chrome in a stopped earlier run, and passed alone and in the complete run. Cause not investigated.
 - BR4.7: a sold-out dish leaves the cart on refusal only, as the team approved at sign-off.
 - Shared contract C12 and C16 don't yet list `id`, `visitId` and `elapsedMs`.
 - Client code is not in the coverage figure.
