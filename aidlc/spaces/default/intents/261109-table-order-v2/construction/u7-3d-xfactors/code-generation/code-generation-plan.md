@@ -17,36 +17,36 @@
 
 ### Setup
 
-- [ ] **Step 1:** Add three.js to `package.json`, install it, and confirm `npx vitest run tests/server/diner-access.test.js` runs. Record the Unit's command in `unit-test-instructions.md`.
+- [x] **Step 1:** Add three.js to `package.json`, install it, and confirm `npx vitest run tests/server/diner-access.test.js` runs. Record the Unit's command in `unit-test-instructions.md`.
 
 ### Data and Server
 
-- [ ] **Step 2:** In `server/features/u7.js`, return an add-only migration for `spins`. (US11.1)
-- [ ] **Step 3:** Write and run a data test in `tests/server/u7-migrations.test.js`.
-- [ ] **Step 4:** Add the spin service and routes from C16. Validate the table, visit, seats and question. Inside one transaction check the 5-second window, pick the seat with a secure random number and store the spin. Publish `spin.started` after commit with `elapsedMs` 0, and return the server's `elapsedMs` on reads. (US11.1: BR11.1 to BR11.6)
-- [ ] **Step 5:** Write and run `tests/server/spin.test.js`: each refusal, two spins at once, the 5-second window on an injected clock, the read during and after a spin, an unknown table, and no name or payment fields.
+- [x] **Step 2:** In `server/features/u7.js`, return an add-only migration for `spins`. (US11.1)
+- [x] **Step 3:** Write and run a data test in `tests/server/u7-migrations.test.js`.
+- [x] **Step 4:** Add the spin service and routes from C16. Validate the table, visit, seats and question. Inside one transaction check the 5-second window, pick the seat with a secure random number and store the spin. Publish `spin.started` after commit with `elapsedMs` 0, and return the server's `elapsedMs` on reads. (US11.1: BR11.1 to BR11.6)
+- [x] **Step 5:** Write and run `tests/server/spin.test.js`: each refusal, two spins at once, the 5-second window on an injected clock, the read during and after a spin, an unknown table, and no name or payment fields.
 
 ### Scene Logic
 
-- [ ] **Step 6:** Add pure logic modules in `client/src/xfactors/logic/`: plates from orders with the 12 cap, tickets and stations, the time left for a spin held between 0 and 5 seconds, and the dice choice. (BR9.1, BR9.2, BR10.1, BR11.5, BR12.1, BR12.3)
-- [ ] **Step 7:** Write and run `tests/client/xfactors.test.js`.
+- [x] **Step 6:** Add pure logic modules in `client/src/xfactors/logic/`: plates from orders with the 12 cap, tickets and stations, the time left for a spin held between 0 and 5 seconds, and the dice choice. (BR9.1, BR9.2, BR10.1, BR11.5, BR12.1, BR12.3)
+- [x] **Step 7:** Write and run `tests/client/xfactors.test.js`.
 
 ### Scenes
 
-- [ ] **Step 8:** Add a shared scene host: WebGL check, text fallback when 3D can't start or fails, reduced-motion still scenes, and releasing 3D resources on close. (BR9.4, BR9.5, BR9.6)
-- [ ] **Step 9:** Replace `LivingTable.jsx`: plates, covers and steam, drag and arrow keys, and a text summary of every unit. (US9.1: BR9.1 to BR9.3)
-- [ ] **Step 10:** Replace `KitchenTheatre.jsx`: tickets on a rail with number and status in words. (US10.1: BR10.1, BR10.2)
-- [ ] **Step 11:** Replace `SpinTheBottle.jsx`: seats and question form, shared result from `spin.started` and the read, and plain refusal messages. (US11.1: BR11.1 to BR11.5)
-- [ ] **Step 12:** Replace `ChefsDice.jsx`: mood choice, roll by tap, Enter or shake where allowed, "Add to cart", "Roll again", and the no-match message, reading the `menu` prop. (US12.1: BR12.1 to BR12.3)
+- [x] **Step 8:** Add a shared scene host: WebGL check, text fallback when 3D can't start or fails, reduced-motion still scenes, and releasing 3D resources on close. (BR9.4, BR9.5, BR9.6)
+- [x] **Step 9:** Replace `LivingTable.jsx`: plates, covers and steam, drag and arrow keys, and a text summary of every unit. (US9.1: BR9.1 to BR9.3)
+- [x] **Step 10:** Replace `KitchenTheatre.jsx`: tickets on a rail with number and status in words. (US10.1: BR10.1, BR10.2)
+- [x] **Step 11:** Replace `SpinTheBottle.jsx`: seats and question form, shared result from `spin.started` and the read, and plain refusal messages. (US11.1: BR11.1 to BR11.5)
+- [x] **Step 12:** Replace `ChefsDice.jsx`: mood choice, roll by tap, Enter or shake where allowed, "Add to cart", "Roll again", and the no-match message, reading the `menu` prop. (US12.1: BR12.1 to BR12.3)
 
 ### Browser Tests
 
-- [ ] **Step 13:** Add Playwright specs in `e2e/u7-3d-xfactors/`: `living-table.spec.ts`, `kitchen-theatre.spec.ts`, `spin.spec.ts` and `dice.spec.ts`, including two screens sharing one spin, the text version, reduced motion, and the Menu's first load fetching no 3D code. Close every extra browser context.
-- [ ] **Step 14:** Add `e2e/u7-3d-xfactors/mockup-match.spec.ts` for `living-table.html`, `kitchen-theatre.html`, `bottle.html` and `dice.html`, saving pairs to `test-results/mockup-match/u7-3d-xfactors/` and listing parts left out.
+- [x] **Step 13:** Add Playwright specs in `e2e/u7-3d-xfactors/`: `living-table.spec.ts`, `kitchen-theatre.spec.ts`, `spin.spec.ts` and `dice.spec.ts`, including two screens sharing one spin, the text version, reduced motion, and the Menu's first load fetching no 3D code. Close every extra browser context.
+- [x] **Step 14:** Add `e2e/u7-3d-xfactors/mockup-match.spec.ts` for `living-table.html`, `kitchen-theatre.html`, `bottle.html` and `dice.html`, saving pairs to `test-results/mockup-match/u7-3d-xfactors/` and listing parts left out.
 
 ### Finish
 
-- [ ] **Step 15:** Write `code-summary.md`, `source-manifest.json` and `traceability.json`.
+- [x] **Step 15:** Write `code-summary.md`, `source-manifest.json` and `traceability.json`.
 
 ## Story Traceability
 

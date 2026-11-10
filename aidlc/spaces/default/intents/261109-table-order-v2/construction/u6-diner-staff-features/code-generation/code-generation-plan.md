@@ -17,46 +17,46 @@
 
 ### Setup
 
-- [ ] **Step 1:** Confirm the runner works with `npx vitest run tests/server/ordering.test.js`, and record the Unit's command in `unit-test-instructions.md`.
+- [x] **Step 1:** Confirm the runner works with `npx vitest run tests/server/ordering.test.js`, and record the Unit's command in `unit-test-instructions.md`.
 
 ### Data
 
-- [ ] **Step 2:** In `server/features/u6.js`, return add-only `migrations()` for `order_line_options` and `table_requests`, with a partial unique index allowing one waiting request per visit and kind. (US4.2, US5.1: BR5.2)
-- [ ] **Step 3:** Write and run data tests in `tests/server/u6-migrations.test.js`: tables are added to a v1-shaped database, data is kept, and a second start changes nothing.
+- [x] **Step 2:** In `server/features/u6.js`, return add-only `migrations()` for `order_line_options` and `table_requests`, with a partial unique index allowing one waiting request per visit and kind. (US4.2, US5.1: BR5.2)
+- [x] **Step 3:** Write and run data tests in `tests/server/u6-migrations.test.js`: tables are added to a v1-shaped database, data is kept, and a second start changes nothing.
 
 ### Options and Pricing
 
-- [ ] **Step 4:** In `server/ordering/repo.js`, store option snapshots with each line, and add `options` to a line in the order mapping only when it has some. (US4.3: BR4.8, BR4.9)
-- [ ] **Step 5:** In `server/ordering/service.js`, validate `optionIds` inside the placing transaction before the sold-out check, apply defaults for groups left out, work out the unit price, and record non-default or priced choices. Refuse invalid choices with 400 `INVALID_OPTIONS`. (US4.2: BR4.4, BR4.5)
-- [ ] **Step 6:** Write and run `tests/server/options.test.js`, including exact cents, each refusal, a free-default order matching v1's shape exactly, and options on the bill.
+- [x] **Step 4:** In `server/ordering/repo.js`, store option snapshots with each line, and add `options` to a line in the order mapping only when it has some. (US4.3: BR4.8, BR4.9)
+- [x] **Step 5:** In `server/ordering/service.js`, validate `optionIds` inside the placing transaction before the sold-out check, apply defaults for groups left out, work out the unit price, and record non-default or priced choices. Refuse invalid choices with 400 `INVALID_OPTIONS`. (US4.2: BR4.4, BR4.5)
+- [x] **Step 6:** Write and run `tests/server/options.test.js`, including exact cents, each refusal, a free-default order matching v1's shape exactly, and options on the bill.
 
 ### Requests and Wait
 
-- [ ] **Step 7:** In `server/features/u6.js`, add the table request service and routes from C15: create-or-return, the diner read, the all-requests read and Respond behind `context.requireStaff`. Reads return only requests of Open visits. Respond answers 404 for an unknown id and returns the request unchanged on a repeat. Publish `table-request.updated`. (US5.1, US5.2: BR5.1, BR5.2, BR5.4, BR5.5)
-- [ ] **Step 8:** In `server/tables/service.js`, add `estimateMinutes` to Pending and Preparing orders in the diner's order read. (US6.2: BR6.2)
-- [ ] **Step 9:** Write and run `tests/server/requests.test.js` and `tests/server/estimate.test.js`, including two presses at once, 401 without a session, closing a table, and both estimate examples.
+- [x] **Step 7:** In `server/features/u6.js`, add the table request service and routes from C15: create-or-return, the diner read, the all-requests read and Respond behind `context.requireStaff`. Reads return only requests of Open visits. Respond answers 404 for an unknown id and returns the request unchanged on a repeat. Publish `table-request.updated`. (US5.1, US5.2: BR5.1, BR5.2, BR5.4, BR5.5)
+- [x] **Step 8:** In `server/tables/service.js`, add `estimateMinutes` to Pending and Preparing orders in the diner's order read. (US6.2: BR6.2)
+- [x] **Step 9:** Write and run `tests/server/requests.test.js` and `tests/server/estimate.test.js`, including two presses at once, 401 without a session, closing a table, and both estimate examples.
 
 ### Diner Screens
 
-- [ ] **Step 10:** Add the notification logic and `ReadyBanner` with `MuteSwitch`: last-seen status saved on every read and event, dismissals, the shared banner, and sound and vibration that never block a banner. (US1.1, US1.3: BR1.1 to BR1.5, BR1.7)
-- [ ] **Step 11:** Add `AllergyPanel` and `ContainsTag` on the Menu, and `AllergyWarning` with an in-page confirmation on the Cart. (US3.1, US3.2, US3.3: BR3.1 to BR3.4)
-- [ ] **Step 12:** Add `CustomizePanel` with the running price and the "Customize" link, send option ids when placing, remove every line of a sold-out dish, and show option words on the Cart and My orders. Change cart test ids so one dish can have two lines. (US4.1, US4.2, US4.3: BR4.1 to BR4.3, BR4.6 to BR4.8)
-- [ ] **Step 13:** Add `RequestButtons` and `OrderTracker` with "About N min", re-reading on `queue.changed`. (US5.1, US6.1, US6.2: BR5.1, BR6.1, BR6.3)
-- [ ] **Step 14:** Write and run client tests in `tests/client/` for notification logic, unsafe-cart logic, the running price and the tracker's steps.
+- [x] **Step 10:** Add the notification logic and `ReadyBanner` with `MuteSwitch`: last-seen status saved on every read and event, dismissals, the shared banner, and sound and vibration that never block a banner. (US1.1, US1.3: BR1.1 to BR1.5, BR1.7)
+- [x] **Step 11:** Add `AllergyPanel` and `ContainsTag` on the Menu, and `AllergyWarning` with an in-page confirmation on the Cart. (US3.1, US3.2, US3.3: BR3.1 to BR3.4)
+- [x] **Step 12:** Add `CustomizePanel` with the running price and the "Customize" link, send option ids when placing, remove every line of a sold-out dish, and show option words on the Cart and My orders. Change cart test ids so one dish can have two lines. (US4.1, US4.2, US4.3: BR4.1 to BR4.3, BR4.6 to BR4.8)
+- [x] **Step 13:** Add `RequestButtons` and `OrderTracker` with "About N min", re-reading on `queue.changed`. (US5.1, US6.1, US6.2: BR5.1, BR6.1, BR6.3)
+- [x] **Step 14:** Write and run client tests in `tests/client/` for notification logic, unsafe-cart logic, the running price and the tracker's steps.
 
 ### Staff Screens
 
-- [ ] **Step 15:** Add `KitchenAlerts` and the kitchen mute through `BoardExtras`, and `RequestStrip` with one Respond per request on the board's cards. Show option words on tickets and on the bill through `BillExtras` or the existing lines, keeping v1's look. (US1.2, US1.3, US4.3, US5.1, US5.2: BR1.6, BR4.8, BR5.3, BR5.4)
-- [ ] **Step 16:** Write and run client tests for the alert and request-strip logic.
+- [x] **Step 15:** Add `KitchenAlerts` and the kitchen mute through `BoardExtras`, and `RequestStrip` with one Respond per request on the board's cards. Show option words on tickets and on the bill through `BillExtras` or the existing lines, keeping v1's look. (US1.2, US1.3, US4.3, US5.1, US5.2: BR1.6, BR4.8, BR5.3, BR5.4)
+- [x] **Step 16:** Write and run client tests for the alert and request-strip logic.
 
 ### Browser Tests
 
-- [ ] **Step 17:** Add Playwright specs in `e2e/u6-diner-staff-features/`: `notifications.spec.ts`, `allergy.spec.ts`, `options.spec.ts`, `requests.spec.ts` and `tracker.spec.ts`, closing every extra browser context. (All stories)
-- [ ] **Step 18:** Add `e2e/u6-diner-staff-features/mockup-match.spec.ts` for `allergies.html`, `customize.html`, the U6 parts of `menu.html`, `cart.html` and `my-orders.html`, `kitchen-board.html` and `table-bill.html`, saving pairs to `test-results/mockup-match/u6-diner-staff-features/` and listing parts left out.
+- [x] **Step 17:** Add Playwright specs in `e2e/u6-diner-staff-features/`: `notifications.spec.ts`, `allergy.spec.ts`, `options.spec.ts`, `requests.spec.ts` and `tracker.spec.ts`, closing every extra browser context. (All stories)
+- [x] **Step 18:** Add `e2e/u6-diner-staff-features/mockup-match.spec.ts` for `allergies.html`, `customize.html`, the U6 parts of `menu.html`, `cart.html` and `my-orders.html`, `kitchen-board.html` and `table-bill.html`, saving pairs to `test-results/mockup-match/u6-diner-staff-features/` and listing parts left out.
 
 ### Finish
 
-- [ ] **Step 19:** Write `code-summary.md`, `source-manifest.json` and `traceability.json`.
+- [x] **Step 19:** Write `code-summary.md`, `source-manifest.json` and `traceability.json`.
 
 ## Story Traceability
 
