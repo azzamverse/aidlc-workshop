@@ -16,7 +16,7 @@ Run on the merged app (U5, U6, U7 and v1) in the main folder, 2026-11-10, from e
 | Coverage, server code only | Node | Lines 98.29%, branches 94.06%, functions 98.77%, statements 98.28% |
 | `npm run test:e2e`, Chromium | Real browser engine | 228 passed, 0 failed |
 | `npm run test:e2e`, Google Chrome | Real browser engine | 227 passed, 1 failed, then passed when run alone |
-| `npm run test:e2e`, WebKit | Real browser engine | 24 of 228 passed, 0 failed, then stopped. **204 did not run** |
+| `npm run test:e2e`, WebKit | Real browser engine | Stopped part way. The saved report shows 26 passed, 28 failed and 174 not run, out of 228. 24 had passed with no failures just before the stop; the 28 failures were recorded around the stop and their cause was not confirmed |
 | `e2e/build-and-test/v2-widths-and-keyboard.spec.ts`, added at this stage | Chromium only | 6 passed |
 
 ### The failure in Google Chrome
@@ -25,6 +25,6 @@ Run on the merged app (U5, U6, U7 and v1) in the main folder, 2026-11-10, from e
 
 ## Skipped
 
-- 204 WebKit browser tests, so the merged app has not been shown to work in Safari's engine.
+- The rest of the WebKit browser tests, so the merged app has not been shown to work in Safari's engine.
 - The new width and keyboard spec in Google Chrome and WebKit.
 - A fresh mockup-match look at v1 and U5 pairs. U6 and U7's 11 pairs were looked at on the merged app.

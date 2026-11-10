@@ -18,7 +18,7 @@ Test types: unit and server (Node), browser (Playwright in real browser engines)
 | NFR6 | requirements.md | Keyboard, 44 px, words | Passed | U5, U6 and U7 specs and the new spec, Chromium | build-and-test | Met |
 | NFR7 | requirements.md | No motion when reduced | Passed | Chromium | build-and-test | Met |
 | NFR8 | requirements.md | Exact cents | Passed | Node | build-and-test | Met |
-| NFR9 | requirements.md | Whole suite in Chromium, Chrome, WebKit | Chromium 228/228; Chrome 227/228 plus one pass alone; WebKit 24/228 then stopped | `test-results.md` | build-and-test | Unverified |
+| NFR9 | requirements.md | Whole suite in Chromium, Chrome, WebKit | Chromium 228/228; Chrome 227/228 plus one pass alone; WebKit stopped part way (saved report: 26 passed, 28 failed around the stop, 174 not run) | `test-results.md` | build-and-test | Unverified |
 | NFR10 | requirements.md | Settings from the environment | Passed | Node | build-and-test | Met |
 | NFR11 | requirements.md | Errors logged and shown in plain words | Passed | `requests.spec.ts`, `server/app.js`, Chromium | build-and-test | Met |
 | NFR12 | requirements.md | 3D fallback, still under reduced motion | Passed | U7 specs, Chromium | build-and-test | Met |
