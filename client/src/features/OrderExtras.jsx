@@ -1,4 +1,6 @@
-/** U6 fills this mount on My orders. Props: { table, orders }. Renders nothing until then. */
+import { MuteSwitch } from './MuteSwitch.jsx';
+
+/** C14's mount on My orders: the diner's mute switch. Props: { table, orders }. */
 export default function OrderExtras() {
-  return null;
+  return <div className="order-extras"><MuteSwitch scope="diner" /></div>;
 }

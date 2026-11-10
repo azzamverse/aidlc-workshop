@@ -5,6 +5,7 @@ import {
   orderStateConflict,
   validationFailed,
 } from '../platform/errors.js';
+import { priceLine } from './options.js';
 
 const MAX_QUANTITY = 20;
 const MAX_KEY_LENGTH = 200;
@@ -61,6 +62,15 @@ export function createOrderingService({
     }
   }
 
+  /** Prices each line from its option ids; an invalid choice refuses the whole order (BR4.5). */
+  function priceLines(resolved) {
+    return resolved.map(({ line, item }) => ({
+      line,
+      item,
+      priced: priceLine(item, repo.listOptionGroups(item.id), line.optionIds),
+    }));
+  }
+
   function createOrder(table, placement, resolved) {
     const id = randomUUID();
     repo.insertOrder({
@@ -69,12 +79,18 @@ export function createOrderingService({
       visitId: placement.visitId,
       placementKey: placement.placementKey,
       placedAt: new Date(now()).toISOString(),
-      lines: resolved.map(({ line, item }) => ({
+      lines: resolved.map(({ line, item, priced }) => ({
         id: randomUUID(),
         itemId: item.id,
         name: item.name,
-        unitPriceCents: item.priceCents,
+        unitPriceCents: priced.unitPriceCents,
         quantity: line.quantity,
+        options: priced.options.map((option) => ({
+          id: randomUUID(),
+          optionId: option.id,
+          name: option.name,
+          priceDeltaCents: option.priceDeltaCents,
+        })),
       })),
     });
     const order = repo.findById(id);
@@ -99,8 +115,9 @@ export function createOrderingService({
       if (tablesRepo.findOpenVisit(table.id)?.id !== placement.visitId) {
         throw new AppError(409, 'TABLE_CLOSED', 'This table was closed.');
       }
+      const priced = priceLines(resolved);
       refuseSoldOut(resolved);
-      return { order: createOrder(table, placement, resolved), created: true };
+      return { order: createOrder(table, placement, priced), created: true };
     });
   }
 

@@ -1,6 +1,9 @@
 import { lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ContainsTag } from '../../features/ContainsTag.jsx';
+import { CustomizePanel } from '../../features/CustomizePanel.jsx';
 import MenuExtras from '../../features/MenuExtras.jsx';
+import { useAllergies } from '../../features/useAllergies.js';
 import { getMenu } from '../../shared/api.js';
 import { formatMoney } from '../../shared/money.js';
 import { cartItemCount, cartTotalCents } from './cartStore.js';
@@ -73,19 +76,25 @@ function CategoryPills({ categories, currentId }) {
   );
 }
 
-function MenuItemCard({ item, onAdd }) {
+function MenuItemCard({ item, chosenAllergens, onAdd, onCustomize }) {
   return (
     <article className={item.soldOut ? 'card item soldout' : 'card item'} data-testid={`menu-item-${item.id}`}>
       <div className="tile" aria-hidden="true">{item.image}</div>
       <div>
         <h3>{item.name}</h3>
         <p>{item.description}</p>
+        <ContainsTag item={item} chosen={chosenAllergens} />
         <div className="price-row">
           <span className="price">{formatMoney(item.priceCents)}</span>
           {item.soldOut ? (
             <span className="soldout-tag" data-testid={`menu-sold-out-${item.id}`}>Sold out</span>
           ) : (
-            <button className="add" aria-label={`Add ${item.name}`} onClick={() => onAdd(item)} data-testid={`menu-add-${item.id}`}>+ Add</button>
+            <span className="item-actions">
+              {item.optionGroups?.length > 0 && (
+                <button className="link-btn" aria-label={`Customize ${item.name}`} onClick={() => onCustomize(item.id)} data-testid={`menu-customize-${item.id}`}>Customize</button>
+              )}
+              <button className="add" aria-label={`Add ${item.name}`} onClick={() => onAdd(item)} data-testid={`menu-add-${item.id}`}>+ Add</button>
+            </span>
           )}
         </div>
       </div>
@@ -113,6 +122,9 @@ export function MenuScreen() {
   const [menu, setMenu] = useState(null);
   const [loadFailed, setLoadFailed] = useState(false);
   const [diceOpen, setDiceOpen] = useState(false);
+  const [allergyOpen, setAllergyOpen] = useState(false);
+  const [customizingId, setCustomizingId] = useState(null);
+  const chosenAllergens = useAllergies();
   const lastRead = useRef(0);
 
   const loadMenu = useCallback(async () => {
@@ -142,6 +154,13 @@ export function MenuScreen() {
   const { lines } = useCart(cart);
   const categories = menu?.categories ?? NO_CATEGORIES;
   const currentId = useCurrentCategory(categories);
+  const customizing = categories.flatMap((category) => category.items).find((item) => item.id === customizingId) ?? null;
+  const isCustomizingSoldOut = customizing?.soldOut === true;
+
+  // A dish that sells out while its panel is open closes the panel for good.
+  useEffect(() => {
+    if (isCustomizingSoldOut) setCustomizingId(null);
+  }, [isCustomizingSoldOut]);
 
   // BR5.1: saved v1 lines take their default choices once the menu is known.
   useEffect(() => {
@@ -154,7 +173,10 @@ export function MenuScreen() {
   const showError = loadFailed && !menu;
   return (
     <>
-      <TopBar title={table.label}>
+      <TopBar
+        title={table.label}
+        label={menu && <button className="btn secondary small" onClick={() => setAllergyOpen(true)} data-testid="menu-allergies">Allergies</button>}
+      >
         {menu && <CategoryPills categories={categories} currentId={currentId} />}
       </TopBar>
       <main className="content">
@@ -168,7 +190,7 @@ export function MenuScreen() {
         )}
         {menu && (
           <>
-            <MenuExtras table={table} menu={menu} cart={cart} />
+            <MenuExtras table={table} menu={menu} cart={cart} allergyOpen={allergyOpen} onAllergyClose={() => setAllergyOpen(false)} />
             <button className="btn block" aria-expanded={diceOpen} onClick={() => setDiceOpen((open) => !open)} data-testid="menu-chefs-dice">🎲 Chef's Dice</button>
             {diceOpen && (
               <SlotView><ChefsDice table={table} orders={[]} menu={menu} onAddToCart={cart.add} /></SlotView>
@@ -178,10 +200,15 @@ export function MenuScreen() {
         {categories.map((category) => (
           <section className="menu-category" key={category.id} data-testid={`menu-category-${category.id}`}>
             <h2 id={category.id} tabIndex={-1}>{category.name}</h2>
-            {category.items.map((item) => <MenuItemCard key={item.id} item={item} onAdd={cart.add} />)}
+            {category.items.map((item) => (
+              <MenuItemCard key={item.id} item={item} chosenAllergens={chosenAllergens} onAdd={cart.add} onCustomize={setCustomizingId} />
+            ))}
           </section>
         ))}
       </main>
+      {customizing && !customizing.soldOut && (
+        <CustomizePanel item={customizing} onAdd={cart.add} onClose={() => setCustomizingId(null)} />
+      )}
       <ViewCartBar tableId={table.id} lines={lines} />
     </>
   );

@@ -1,0 +1,47 @@
+/* U6's additions. Separate from shared/styles.css, which C10 keeps out of U6's hands. */
+
+/* Banners stay in view while the diner scrolls, and hold their place at the top. */
+.banners { position: sticky; top: 0; z-index: 8; display: grid; gap: 8px; padding: 8px 12px 0; }
+.banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-radius: 20px; background: linear-gradient(90deg, #8fd9a8, #c9f0d6); color: #17101f; font-weight: 700; box-shadow: 0 14px 28px rgba(0,0,0,.45); }
+.banner-dismiss { min-height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: #17101f; color: #fbf1df; font: 700 14px system-ui, sans-serif; cursor: pointer; }
+
+.order-extras { display: flex; justify-content: flex-end; }
+.request-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Dialogs sit above the summary and stop at the tab bar. */
+.sheet { position: fixed; top: 0; left: 0; right: 0; bottom: 72px; z-index: 7; max-width: 480px; margin: 0 auto; padding: 16px; display: grid; gap: 12px; align-content: start; overflow: auto; background: #17101f; }
+.sheet:focus { outline: none; }
+.sheet h2 { font: 700 18px/1.2 Georgia, serif; color: #f6d999; margin: 0 0 8px; }
+.choice { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 44px; padding: 0 12px; border: 0; border-bottom: 1px solid #5a3a72; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.choice-name { display: inline-flex; align-items: center; gap: 10px; }
+.choice input { width: 20px; height: 20px; accent-color: #e8b75a; }
+
+.tag.warn { display: inline-block; margin-top: 6px; padding: 2px 10px; border-radius: 999px; border: 1px solid #ff9a8a; background: rgba(255,154,138,.16); color: #ff9a8a; font: 700 12px system-ui, sans-serif; }
+.warnbox { display: grid; gap: 4px; padding: 12px 16px; border: 1px solid #ff9a8a; border-radius: 20px; background: rgba(255,154,138,.12); }
+.item-actions { display: inline-flex; align-items: center; gap: 4px; }
+
+/* The order tracker. */
+.tracker { display: grid; gap: 8px; margin: 12px 0 8px; }
+.track { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.seg { height: 10px; border-radius: 999px; background: #17101f; transition: background .3s ease; }
+.seg.on { background: linear-gradient(90deg, #e8b75a, #ff7a4d); box-shadow: 0 0 12px rgba(232,183,90,.45); }
+
+.estimate { color: #f6d999; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.option-words { font-size: 13px; }
+.diner .option-words { color: #c4b4d2; }
+
+/* The kitchen board: only these additions are new. */
+.board-extras { display: grid; gap: 10px; padding: 12px 24px 0; }
+.board-extras-mute { display: flex; justify-content: flex-end; }
+.kitchen-alerts { display: grid; gap: 8px; }
+.kitchen-alert { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 14px; border-radius: 14px; background: var(--pending-bg); color: var(--pending); font-weight: 700; }
+.table-card.pulse { outline: 3px solid #ff7a4d; animation: request-pulse 1.2s infinite; }
+@keyframes request-pulse { 50% { outline-color: transparent; } }
+.request-strip { display: grid; gap: 6px; }
+.request-strip p { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) {
+  .table-card.pulse { animation: none; }
+  .seg { transition: none; }
+}

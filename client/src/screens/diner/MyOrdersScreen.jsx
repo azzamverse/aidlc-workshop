@@ -1,6 +1,9 @@
 import { lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import OrderExtras from '../../features/OrderExtras.jsx';
+import { OptionWords, wordsOfLine } from '../../features/OptionWords.jsx';
+import { OrderTracker } from '../../features/OrderTracker.jsx';
+import { withKnownEstimate } from '../../features/tracker.js';
 import { cancelOrder, getTableOrders } from '../../shared/api.js';
 import { formatMoney } from '../../shared/money.js';
 import { ClosedScreen, EmptyView, Notice, ReconnectingNotice, Skeletons, SlotView, TopBar } from './parts.jsx';
@@ -49,8 +52,9 @@ function OrderCard({ order, busy, onCancel }) {
     <article className="card" data-testid={`order-${order.number}`}>
       <div className="order-head"><h3>Order #{order.number}</h3><StatusChip status={order.status} /></div>
       <ul className="order-lines">
-        {order.lines.map((line, index) => <li key={index}>{line.quantity} × {line.name}</li>)}
+        {order.lines.map((line, index) => <li key={index}>{line.quantity} × {line.name}<OptionWords words={wordsOfLine(line)} /></li>)}
       </ul>
+      <OrderTracker order={order} />
       <div className="line">
         {order.status === 'Cancelled' ? (
           <span className="muted"><s>{price}</s> · Not on the bill</span>
@@ -99,6 +103,11 @@ export function MyOrdersScreen() {
     onReload: () => loadOrders(session.table.id),
     onClosed: () => setOrders([]),
     onEvent(type, data) {
+      // C12: the event has no payload; a fresh read brings the new estimates.
+      if (type === 'queue.changed') {
+        loadOrders(session.table.id);
+        return;
+      }
       if (type !== 'order.placed' && type !== 'order.updated') return;
       // Nothing read yet: a read started now includes this event.
       if (orders === null) {
@@ -106,7 +115,7 @@ export function MyOrdersScreen() {
         return;
       }
       lastRead.current += 1; // An older read still running must not undo this event.
-      setOrders((current) => mergeOrder(current ?? [], data.order, visitId.current));
+      setOrders((current) => mergeOrder(current ?? [], withKnownEstimate(current, data.order), visitId.current));
     },
   });
   const { table, closed, reconnecting, cart } = session;

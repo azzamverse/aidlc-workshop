@@ -39,7 +39,7 @@ export function resolveOptionIds(item, optionIds) {
   });
 }
 
-function unitPriceCents(item, optionIds) {
+export function unitPriceCents(item, optionIds) {
   const options = (item.optionGroups ?? []).flatMap((group) => group.options);
   return options.reduce(
     (price, option) => (optionIds.includes(option.id) ? price + option.priceDeltaCents : price),
@@ -49,6 +49,30 @@ function unitPriceCents(item, optionIds) {
 
 const optionFields = (itemId, optionIds) =>
   optionIds.length > 0 ? { lineKey: lineKeyOf(itemId, optionIds), optionIds } : {};
+
+/** BR4.8: the same choices the server records: non-default or priced. */
+function optionWords(item, optionIds) {
+  const options = (item.optionGroups ?? []).flatMap((group) => group.options);
+  return options.filter((option) => optionIds.includes(option.id) && (!option.isDefault || option.priceDeltaCents > 0)).map((option) => option.name);
+}
+
+const wordsField = (item, optionIds) => {
+  const optionWordList = optionWords(item, optionIds);
+  return optionWordList.length > 0 ? { optionWords: optionWordList } : {};
+};
+
+/**
+ * Stable test and label key: a line of plain defaults keeps the dish's own id, as
+ * in v1, and a line with choices adds its line key, so one dish can have two lines.
+ */
+export const testKeyOfLine = (line) => (line.optionWords?.length > 0 ? keyOfLine(line) : line.itemId);
+
+/** What a placement sends: only choices worth sending; plain defaults are the server's to apply. */
+export const placementLine = (line) => ({
+  itemId: line.itemId,
+  quantity: line.quantity,
+  ...(line.optionWords?.length > 0 ? { optionIds: line.optionIds } : {}),
+});
 
 /** Gives saved v1 lines their defaults, and joins lines that now have the same key. */
 function linesWithDefaults(lines, itemsById) {
@@ -156,6 +180,7 @@ export function createCartStore({ tableId, storage, setCount = () => {}, newKey 
           image: item.image,
           quantity: 1,
           ...optionFields(item.id, chosen),
+          ...wordsField(item, chosen),
         },
       ]);
     },
@@ -178,7 +203,7 @@ export function createCartStore({ tableId, storage, setCount = () => {}, newKey 
     removeItems(itemIds) {
       const removed = state.lines.filter((line) => itemIds.includes(line.itemId));
       setLines(state.lines.filter((line) => !itemIds.includes(line.itemId)));
-      return removed.map((line) => line.name);
+      return [...new Set(removed.map((line) => line.name))];
     },
     /** After a placement or a close: an empty cart with a fresh key, same visit id. */
     clear() {

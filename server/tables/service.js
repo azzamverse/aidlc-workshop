@@ -1,6 +1,9 @@
 import { randomUUID } from 'node:crypto';
 import { AppError, tableNotFound } from '../platform/errors.js';
 
+const BASE_WAIT_MINUTES = 10;
+const MINUTES_PER_EARLIER_ORDER = 3;
+
 /** Turns an address value into a table id: digits only, so "5.5" or "5abc" are not tables. */
 function parseTableId(rawId) {
   return /^[1-9]\d*$/.test(String(rawId)) ? Number(rawId) : null;
@@ -46,11 +49,17 @@ export function createTablesService({ repo, orderRepo, transactions, now = Date.
     return orderRepo.listByVisit(visitId);
   }
 
+  /** C15 (BR6.2): worked out on each read and never stored. */
+  function withEstimate(order) {
+    if (order.status !== 'Pending' && order.status !== 'Preparing') return order;
+    return { ...order, estimateMinutes: BASE_WAIT_MINUTES + MINUTES_PER_EARLIER_ORDER * orderRepo.countOpenBefore(order) };
+  }
+
   /** The current visit's orders; a table with no visit has none (BR4.2). */
   function listCurrentOrders(rawId) {
     const table = requireTable(rawId);
     const visit = repo.findOpenVisit(table.id);
-    return { orders: visit ? orderRepo.listByVisit(visit.id) : [] };
+    return { orders: visit ? orderRepo.listByVisit(visit.id).map(withEstimate) : [] };
   }
 
   /** The board read: all tables, and it never starts a visit (BR4.3). */

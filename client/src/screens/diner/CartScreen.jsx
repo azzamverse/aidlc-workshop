@@ -3,31 +3,38 @@ import { useNavigate } from 'react-router-dom';
 import { placeOrder } from '../../shared/api.js';
 import { formatMoney } from '../../shared/money.js';
 import CartExtras from '../../features/CartExtras.jsx';
-import { cartTotalCents, keyOfLine, MAX_QUANTITY, MIN_QUANTITY, soldOutMessage } from './cartStore.js';
+import { ConfirmUnsafe } from '../../features/ConfirmUnsafe.jsx';
+import { OptionWords } from '../../features/OptionWords.jsx';
+import { useUnsafeDishes } from '../../features/useAllergies.js';
+import { cartTotalCents, keyOfLine, MAX_QUANTITY, MIN_QUANTITY, placementLine, soldOutMessage, testKeyOfLine } from './cartStore.js';
 import { ClosedScreen, EmptyView, Notice, ReconnectingNotice, TopBar } from './parts.jsx';
 import { useCart, useDinerSession } from './useDinerSession.js';
 
 const PLACING_FAILED = "We couldn't place your order. Your cart is safe. Please try again.";
 
 function CartLine({ line, cart, disabled }) {
-  const { itemId, name, image, quantity, unitPriceCents } = line;
+  const { name, image, quantity, unitPriceCents, optionWords } = line;
   const lineKey = keyOfLine(line);
+  const testKey = testKeyOfLine(line);
   const atLimit = quantity >= MAX_QUANTITY;
+  // Two lines of one dish must say which is which to a screen reader.
+  const spoken = optionWords?.length > 0 ? `${name} (${optionWords.join(', ')})` : name;
   return (
-    <article className="card item" data-testid={`cart-line-${itemId}`}>
+    <article className="card item" data-testid={`cart-line-${testKey}`}>
       <div className="tile" aria-hidden="true">{image}</div>
       <div>
         <div className="line"><h3>{name}</h3><span className="price">{formatMoney(unitPriceCents * quantity)}</span></div>
+        <OptionWords words={optionWords} />
         <p className="muted">{formatMoney(unitPriceCents)} each</p>
         <div className="line">
           <div className="stepper">
-            <button aria-label={`One fewer ${name}`} disabled={disabled || quantity <= MIN_QUANTITY} onClick={() => cart.decrease(lineKey)} data-testid={`cart-fewer-${itemId}`}>−</button>
-            <output data-testid={`cart-quantity-${itemId}`}>{quantity}</output>
-            <button aria-label={`One more ${name}`} disabled={disabled || atLimit} onClick={() => cart.increase(lineKey)} data-testid={`cart-more-${itemId}`}>+</button>
+            <button aria-label={`One fewer ${spoken}`} disabled={disabled || quantity <= MIN_QUANTITY} onClick={() => cart.decrease(lineKey)} data-testid={`cart-fewer-${testKey}`}>−</button>
+            <output data-testid={`cart-quantity-${testKey}`}>{quantity}</output>
+            <button aria-label={`One more ${spoken}`} disabled={disabled || atLimit} onClick={() => cart.increase(lineKey)} data-testid={`cart-more-${testKey}`}>+</button>
           </div>
-          <button className="link-btn" aria-label={`Remove ${name}`} disabled={disabled} onClick={() => cart.remove(lineKey)} data-testid={`cart-remove-${itemId}`}>Remove</button>
+          <button className="link-btn" aria-label={`Remove ${spoken}`} disabled={disabled} onClick={() => cart.remove(lineKey)} data-testid={`cart-remove-${testKey}`}>Remove</button>
         </div>
-        {atLimit && <p className="muted" data-testid={`cart-limit-${itemId}`}>20 is the most for one item.</p>}
+        {atLimit && <p className="muted" data-testid={`cart-limit-${testKey}`}>20 is the most for one item.</p>}
       </div>
     </article>
   );
@@ -40,6 +47,14 @@ export function CartScreen() {
   const { lines } = useCart(cart);
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState(null);
+  const [confirming, setConfirming] = useState(false);
+  const { unsafe, checkFailed } = useUnsafeDishes(lines);
+
+  /** BR3.4: an unsafe cart asks first. */
+  function pressPlaceOrder() {
+    if (unsafe.length > 0) setConfirming(true);
+    else submit();
+  }
 
   async function submit() {
     const { visitId, placementKey } = cart.getState();
@@ -49,7 +64,7 @@ export function CartScreen() {
       const order = await placeOrder(table.id, {
         visitId,
         placementKey,
-        lines: lines.map(({ itemId, quantity }) => ({ itemId, quantity })),
+        lines: lines.map(placementLine),
       });
       // The table closed while this was on its way: the closed card stays.
       if (isClosed()) return;
@@ -79,7 +94,7 @@ export function CartScreen() {
         {message && (
           <Notice kind={message === PLACING_FAILED ? 'error' : ''} icon="⚠" testId="cart-message">{message}</Notice>
         )}
-        <CartExtras table={table} lines={lines} />
+        <CartExtras table={table} lines={lines} unsafe={unsafe} checkFailed={checkFailed} />
         {lines.length === 0 ? (
           <EmptyView icon="🛒" title="Your cart is empty" text="Add something from the menu to get started." tableId={table.id} testId="cart-empty" />
         ) : (
@@ -91,11 +106,21 @@ export function CartScreen() {
       </main>
       {lines.length > 0 && (
         <div className="summary">
-          <button className="btn" disabled={sending} onClick={submit} data-testid="cart-place-order">
+          <button className="btn" disabled={sending} onClick={pressPlaceOrder} data-testid="cart-place-order">
             <span>{sending ? 'Placing…' : 'Place order'}</span>
             <span className="price">{total}</span>
           </button>
         </div>
+      )}
+      {confirming && (
+        <ConfirmUnsafe
+          unsafe={unsafe}
+          onCancel={() => setConfirming(false)}
+          onConfirm={() => {
+            setConfirming(false);
+            submit();
+          }}
+        />
       )}
     </>
   );

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import { publishDinerEvent } from '../../features/dinerEvents.js';
 import { getVisit } from '../../shared/api.js';
 import { useLiveEvents } from '../../shared/live.js';
 import { getCartStore } from './cartStore.js';
@@ -78,6 +79,7 @@ export function useDinerSession({ onEvent, onReload, onClosed }) {
     onOpen() {
       hasOpened.current = true;
       checkVisit();
+      publishDinerEvent('stream.open');
     },
     onEvent(type, data) {
       const decision = decideEvent({
@@ -90,6 +92,8 @@ export function useDinerSession({ onEvent, onReload, onClosed }) {
       if (decision === 'close') markClosed();
       if (decision === 'check') checkVisit();
       if (decision === 'deliver') latest.current.onEvent?.(type, data);
+      if (decision === 'close' || decision === 'deliver') publishDinerEvent(type, data);
+      if (type === 'resync' && decision !== 'ignore') publishDinerEvent(type, data);
     },
   });
 

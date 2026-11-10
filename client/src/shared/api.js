@@ -96,5 +96,14 @@ export const cancelOrder =(tableId, orderId) =>
 export const moveOrder = (orderId, from, to) =>
   request(`/api/orders/${encodeURIComponent(orderId)}/status`, { method: 'PUT', body: { from, to } });
 
+/** C15: a table's waiting requests, for the diner. */
+export const getTableRequests = (tableId) => request(`/api/tables/${encodeURIComponent(tableId)}/requests`);
+export const createTableRequest = (tableId, kind) =>
+  request(`/api/tables/${encodeURIComponent(tableId)}/requests`, { method: 'POST', body: { kind } });
+/** C15: staff only. */
+export const getAllRequests = () => request('/api/requests');
+export const respondToRequest = (requestId) =>
+  request(`/api/requests/${encodeURIComponent(requestId)}/respond`, { method: 'POST' });
+
 export const setItemSoldOut = (itemId, soldOut) =>
   request(`/api/menu/items/${encodeURIComponent(itemId)}/sold-out`, { method: 'PUT', body: { soldOut } });

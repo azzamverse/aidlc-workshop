@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { NavLink, Outlet, useParams } from 'react-router-dom';
+import { ReadyBanner } from '../features/ReadyBanner.jsx';
 import { getTable } from '../shared/api.js';
 import { useCartCount } from '../shared/cartCount.js';
 
@@ -75,6 +76,7 @@ export function DinerFrame() {
     <div className="diner">
       {state.status === 'loading' && <main className="content"><div className="skeleton" data-testid="table-loading" /></main>}
       {state.status === 'error' && <TableError onRetry={reloadTable} />}
+      {state.status === 'ready' && <ReadyBanner table={state.table} />}
       {state.status === 'ready' && <Outlet context={{ table: state.table, reloadTable }} />}
       <TabBar tableId={id} />
     </div>

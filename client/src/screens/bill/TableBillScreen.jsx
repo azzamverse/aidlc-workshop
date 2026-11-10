@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import BillExtras from '../../features/BillExtras.jsx';
+import { OptionWords, wordsOfLine } from '../../features/OptionWords.jsx';
 import { closeTable, getBill } from '../../shared/api.js';
 import { useLiveEvents } from '../../shared/live.js';
 import { formatMoney } from '../../shared/money.js';
@@ -27,7 +28,7 @@ function OrderBill({ order }) {
         <tbody>
           {order.lines.map((line, index) => (
             <tr key={index}>
-              <td>{line.name}</td>
+              <td>{line.name}<OptionWords words={wordsOfLine(line)} /></td>
               <td className="num">{line.quantity}</td>
               <td className="num">{formatMoney(line.unitPriceCents)}</td>
               <td className="num">{formatMoney(line.unitPriceCents * line.quantity)}</td>

@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import BoardExtras from '../../features/BoardExtras.jsx';
-import { getBoard, moveOrder } from '../../shared/api.js';
+import { OptionWords, wordsOfLine } from '../../features/OptionWords.jsx';
+import { RequestStrip } from '../../features/RequestStrip.jsx';
+import { requestsOfTable, withoutRequest, withoutTable } from '../../features/requests.js';
+import { getAllRequests, getBoard, moveOrder, respondToRequest } from '../../shared/api.js';
 import { useLiveEvents } from '../../shared/live.js';
 import { LiveIndicator, StaffBar } from '../../shell/StaffFrame.jsx';
 import { AvailabilityPanel } from './AvailabilityPanel.jsx';
@@ -27,7 +30,7 @@ function OrderCard({ order, moving, onMove }) {
         <StatusChip status={order.status} />
       </div>
       <div className="muted">
-        {order.lines.map((line, index) => <div key={index}>{line.quantity} × {line.name}</div>)}
+        {order.lines.map((line, index) => <div key={index}>{line.quantity} × {line.name}<OptionWords words={wordsOfLine(line)} /></div>)}
       </div>
       {move && (
         // aria-disabled, not disabled: a disabled button would drop keyboard focus.
@@ -37,13 +40,14 @@ function OrderCard({ order, moving, onMove }) {
   );
 }
 
-function TableCard({ table, movingIds, onMove }) {
+function TableCard({ table, movingIds, onMove, requests, respondingIds, onRespond }) {
   return (
-    <section className="table-card" data-testid={`board-table-${table.id}`}>
+    <section className={requests.length > 0 ? 'table-card pulse' : 'table-card'} data-testid={`board-table-${table.id}`}>
       <header>
         <h2>{table.label}</h2>
         <Link className="btn secondary small" to={`/staff/tables/${table.id}`} aria-label={`Open bill for ${table.label}`} data-testid={`board-open-bill-${table.id}`}>Open bill</Link>
       </header>
+      <RequestStrip table={table} requests={requests} respondingIds={respondingIds} onRespond={onRespond} />
       {table.orders.length === 0 && <p className="muted">No orders</p>}
       {table.orders.map((order) => (
         <OrderCard key={order.id} order={order} moving={movingIds.includes(order.id)} onMove={onMove} />
@@ -66,6 +70,20 @@ export function KitchenBoardScreen() {
   const closedVisitIds = useRef(new Set());
   // The panel shares this screen's stream rather than holding a second connection.
   const panelListener = useRef(null);
+  const extrasListener = useRef(null);
+  const [requests, setRequests] = useState([]);
+  const [respondingIds, setRespondingIds] = useState([]);
+  const lastRequestsRead = useRef(0);
+
+  const loadRequests = useCallback(async () => {
+    const read = ++lastRequestsRead.current;
+    try {
+      const { requests: loaded } = await getAllRequests();
+      if (read === lastRequestsRead.current) setRequests(loaded);
+    } catch (error) {
+      console.warn('The table requests could not be loaded.', error);
+    }
+  }, []);
 
   const loadBoard = useCallback(async () => {
     const tracker = reads.current;
@@ -95,25 +113,48 @@ export function KitchenBoardScreen() {
 
   useEffect(() => {
     loadBoard();
-  }, [loadBoard]);
+    loadRequests();
+  }, [loadBoard, loadRequests]);
 
   const { connected } = useLiveEvents({
     onOpen() {
       everConnected.current = true;
       loadBoard();
+      loadRequests();
       panelListener.current?.('open');
     },
     onEvent(type, data) {
       panelListener.current?.(type, data);
+      extrasListener.current?.(type, data);
       if (type === 'order.placed' || type === 'order.updated') applyChange(data.order);
-      if (type === 'resync') loadBoard();
+      if (type === 'table-request.updated') loadRequests();
+      if (type === 'resync') {
+        loadBoard();
+        loadRequests();
+      }
       if (type === 'table.closed') {
         reads.current.closedTableIds.push(data.tableId);
         if (data.visitId) closedVisitIds.current.add(data.visitId);
+        setRequests((current) => withoutTable(current, data.tableId));
         loadBoard();
+        loadRequests();
       }
     },
   });
+
+  async function respond(request) {
+    setRespondingIds((current) => [...current, request.id]);
+    setMessage(null);
+    try {
+      await respondToRequest(request.id);
+      setRequests((current) => withoutRequest(current, request.id));
+    } catch (error) {
+      console.warn('The request could not be answered.', error);
+      setMessage({ icon: '⚠', kind: 'error', text: "We couldn't clear that request. Please try again." });
+    } finally {
+      setRespondingIds((current) => current.filter((id) => id !== request.id));
+    }
+  }
 
   async function move(order, to) {
     setMovingIds((current) => [...current, order.id]);
@@ -168,7 +209,7 @@ export function KitchenBoardScreen() {
           )}
         </div>
       )}
-      <BoardExtras tables={tables ?? []} />
+      <BoardExtras tables={tables ?? []} listenerRef={extrasListener} />
       {tables === null && !loadFailed && (
         <main className="board" data-testid="board-loading" aria-label="Loading">
           {Array.from({ length: 8 }, (_, index) => <div className="skeleton" key={index} />)}
@@ -176,7 +217,9 @@ export function KitchenBoardScreen() {
       )}
       {tables !== null && (
         <main className="board" data-testid="board">
-          {tables.map((table) => <TableCard key={table.id} table={table} movingIds={movingIds} onMove={move} />)}
+          {tables.map((table) => (
+            <TableCard key={table.id} table={table} movingIds={movingIds} onMove={move} requests={requestsOfTable(requests, table.id)} respondingIds={respondingIds} onRespond={respond} />
+          ))}
         </main>
       )}
       {panelOpen && <AvailabilityPanel onClose={closePanel} listenerRef={panelListener} />}
