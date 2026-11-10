@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, signIn, test, type Page } from '../staff-login';
 import { add, archiveOpenVisit, closeTable, createOwnServer, LIVE_LIMIT_MS, liveReady, openMenuReady, placeByApi, visitOf } from './helpers';
 
 const TABLE = 4;
@@ -115,6 +115,7 @@ test('a close missed while the connection was down is found on reconnect, throug
     await expect(page.getByTestId('table-closed')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('tab-cart-badge')).toHaveCount(0);
     expect(reads.count).toBe(0);
+    await signIn(page.context(), server.url);
     const board = await (await request.get(`${server.url}/api/tables`)).json();
     expect(board.tables.find((table: { id: number }) => table.id === TABLE).visitId).toBeNull();
   } finally {
@@ -133,7 +134,7 @@ test('a close missed while changing tabs is found by the next screen\'s check', 
 
 test('placing on a closed table resets the device, with no order', async ({ page, request }) => {
   await page.route('**/api/events*', (route) => route.abort());
-  await page.route('**/api/tables', (route) => route.abort());
+  await page.route('**/api/tables/*/visit', (route) => route.abort());
   await openMenuReady(page, TABLE);
   await add(page, 'coffee');
   await page.getByTestId('tab-cart').click();

@@ -1,6 +1,30 @@
 /** The first-run data: 10 tables and the mockups' 4 categories and 12 items. */
 export const TABLE_COUNT = 10;
 
+const SPICE = { name: 'Spice', kind: 'one', options: [['Mild', 0], ['Medium', 0, true], ['Hot', 0]] };
+const SIZE = { name: 'Size', kind: 'one', options: [['Regular', 0, true], ['Large', 300]] };
+const extras = (...options) => ({ name: 'Extras', kind: 'any', options });
+const EXTRA_CHEESE = ['Extra cheese', 150];
+
+/**
+ * v2's details, matched to the seed by item name, so a v1 database gains them
+ * without an item row changing (BR3.2). Options never add an allergen (BR4.2).
+ */
+export const SEED_DETAILS = {
+  'Garlic Bread': { allergens: ['gluten', 'dairy'], mood: 'light', groups: [extras(EXTRA_CHEESE)] },
+  'Tomato Soup': { allergens: ['dairy'], mood: 'light', groups: [SPICE] },
+  'Caesar Salad': { allergens: ['gluten', 'dairy', 'eggs', 'fish', 'shellfish'], mood: 'light', groups: [extras(EXTRA_CHEESE)] },
+  'Margherita Pizza': { allergens: ['gluten', 'dairy'], mood: 'hearty', groups: [SIZE, SPICE, extras(EXTRA_CHEESE)] },
+  Cheeseburger: { allergens: ['gluten', 'dairy', 'eggs', 'soy'], mood: 'hearty', groups: [SIZE, SPICE, extras(EXTRA_CHEESE, ['Bacon', 200])] },
+  'Spaghetti Bolognese': { allergens: ['gluten', 'dairy', 'eggs'], mood: 'hearty', groups: [SIZE, SPICE, extras(EXTRA_CHEESE)] },
+  'Chocolate Cake': { allergens: ['gluten', 'dairy', 'eggs', 'peanuts', 'soy'], mood: 'sweet', groups: [] },
+  'Ice Cream': { allergens: ['dairy', 'eggs'], mood: 'sweet', groups: [extras(['Chocolate sauce', 50])] },
+  'Apple Pie': { allergens: ['gluten', 'dairy', 'nuts'], mood: 'sweet', groups: [] },
+  Lemonade: { allergens: [], mood: 'light', groups: [SIZE] },
+  'Iced Tea': { allergens: [], mood: 'light', groups: [SIZE] },
+  Coffee: { allergens: [], mood: 'light', groups: [SIZE] },
+};
+
 export const SEED_CATEGORIES = [
   {
     id: 'starters',

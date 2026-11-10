@@ -1,6 +1,7 @@
 import express from 'express';
 import { createBillingService } from './billing/service.js';
 import { AppError, toErrorBody, validationFailed } from './platform/errors.js';
+import { SESSION_COOKIE } from './staff/service.js';
 
 /** Contract C5. Each address serves the app; the client's router picks the screen. */
 export const SCREEN_ROUTES = [
@@ -11,22 +12,33 @@ export const SCREEN_ROUTES = [
   '/staff/tables/:id',
 ];
 
-function registerMenuRoutes(api, { menu }) {
+function registerMenuRoutes(api, { menu, requireStaff }) {
   api.get('/menu', (req, res) => res.json(menu.getMenu()));
-  api.put('/menu/items/:itemId/sold-out', (req, res) => {
+  api.put('/menu/items/:itemId/sold-out', requireStaff, (req, res) => {
     res.json(menu.setSoldOut(req.params.itemId, req.body?.soldOut));
   });
 }
 
-function registerTableRoutes(api, { tables }) {
-  api.get('/tables', (req, res) => res.json(tables.listBoard()));
+function registerStaffRoutes(api, { staff, requireStaff }) {
+  api.post('/staff/session', (req, res) => {
+    const token = staff.signIn(req.body?.pin, req.ip);
+    // No expiry date: the cookie ends with the browser (BR1.2).
+    res.cookie(SESSION_COOKIE, token, { httpOnly: true, sameSite: 'strict', path: '/' });
+    res.status(204).end();
+  });
+  api.get('/staff/session', requireStaff, (req, res) => res.status(204).end());
+}
+
+function registerTableRoutes(api, { tables, requireStaff }) {
+  api.get('/tables', requireStaff, (req, res) => res.json(tables.listBoard()));
   api.get('/tables/:tableId', (req, res) => res.json(tables.openTable(req.params.tableId)));
+  api.get('/tables/:tableId/visit', (req, res) => res.json(tables.getVisitForDiner(req.params.tableId)));
   api.get('/tables/:tableId/orders', (req, res) => {
     res.json(tables.listCurrentOrders(req.params.tableId));
   });
 }
 
-function registerOrderRoutes(api, { ordering }) {
+function registerOrderRoutes(api, { ordering, requireStaff }) {
   api.post('/tables/:tableId/orders', (req, res) => {
     const { order, created } = ordering.placeOrder(req.params.tableId, req.body);
     res.status(created ? 201 : 200).json(order);
@@ -34,7 +46,7 @@ function registerOrderRoutes(api, { ordering }) {
   api.post('/tables/:tableId/orders/:orderId/cancel', (req, res) => {
     res.json(ordering.cancelOrder(req.params.tableId, req.params.orderId));
   });
-  api.put('/orders/:orderId/status', (req, res) => {
+  api.put('/orders/:orderId/status', requireStaff, (req, res) => {
     res.json(ordering.moveOrder(req.params.orderId, req.body));
   });
 }
@@ -44,8 +56,11 @@ function readLastEventId(req) {
   return raw && /^\d+$/.test(raw) ? Number(raw) : null;
 }
 
-function registerLiveRoutes(api, { live, tables }) {
-  api.get('/events', (req, res) => {
+function registerLiveRoutes(api, { live, tables, requireStaff }) {
+  // C11: the all-tables stream is staff-only; a stream for one table stays open.
+  const staffWithoutTable = (req, res, next) =>
+    req.query.tableId === undefined ? requireStaff(req, res, next) : next();
+  api.get('/events', staffWithoutTable, (req, res) => {
     const { tableId: rawTableId } = req.query;
     const tableId = rawTableId === undefined ? null : tables.requireTable(rawTableId).id;
     res.set({
@@ -64,7 +79,12 @@ function registerLiveRoutes(api, { live, tables }) {
 }
 
 /** BR7.8: lets U2 and U3 test the table-closed reaction before U4 exists. */
-function registerTestRoutes(api, { live, tables }) {
+function registerTestRoutes(api, { live, tables, staff }) {
+  // BR1.7: exists only under test, so specs can start with a clean lockout.
+  api.post('/test/staff/reset-lockout', (req, res) => {
+    staff.resetLockout();
+    res.status(204).end();
+  });
   api.post('/test/events', (req, res) => {
     const { type, tableId, visitId } = req.body ?? {};
     if (type !== 'table.closed') throw validationFailed('Only table.closed can be published here.');
@@ -114,8 +134,12 @@ export function createApp(context, { distDir, isTestMode = false }) {
   const app = express();
   app.disable('x-powered-by');
   const api = express.Router();
-  api.use(express.json({ limit: '100kb' }));
+  // Before the feature modules, so their routes on `app` get parsed bodies too.
+  app.use('/api', express.json({ limit: '100kb' }));
+  // Contract C10: registered before the API router, whose last step answers 404.
+  context.features.forEach((feature) => feature.registerRoutes(app, context));
 
+  registerStaffRoutes(api, context);
   registerMenuRoutes(api, context);
   registerTableRoutes(api, context);
   registerOrderRoutes(api, context);
@@ -126,8 +150,8 @@ export function createApp(context, { distDir, isTestMode = false }) {
   // and edits nothing else in this file.
   // >>> BILLING ROUTES START
   const billing = createBillingService({ shared: context.shared, requireTable: context.tables.requireTable });
-  api.get('/tables/:tableId/bill', (req, res) => res.json(billing.getBill(req.params.tableId)));
-  api.post('/tables/:tableId/close', (req, res) => res.json(billing.closeTable(req.params.tableId)));
+  api.get('/tables/:tableId/bill', context.requireStaff, (req, res) => res.json(billing.getBill(req.params.tableId)));
+  api.post('/tables/:tableId/close', context.requireStaff, (req, res) => res.json(billing.closeTable(req.params.tableId)));
   // <<< BILLING ROUTES END
 
   api.use(() => {

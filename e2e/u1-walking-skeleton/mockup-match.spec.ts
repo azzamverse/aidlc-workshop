@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../staff-login';
 
 const UNIT = 'u1-walking-skeleton';
 const MOCKUPS = path.resolve(
@@ -46,7 +46,6 @@ const barStyle = (page: Page) =>
     const box = bar.getBoundingClientRect();
     return {
       position: style.position,
-      backgroundColor: style.backgroundColor,
       columns: style.gridTemplateColumns,
       restsOnBottom: Math.round(box.bottom) === window.innerHeight,
       height: box.height,
@@ -54,10 +53,8 @@ const barStyle = (page: Page) =>
   });
 
 const currentTab = (page: Page) =>
-  page.locator('nav.tabs a[aria-current="page"]').evaluate((tab) => {
-    const style = getComputedStyle(tab);
-    return { text: tab.textContent, color: style.color, background: style.backgroundColor, inset: style.boxShadow };
-  });
+  // v2's chosen restyle changed the colours, so only the current tab's words are compared.
+  page.locator('nav.tabs a[aria-current="page"]').evaluate((tab) => ({ text: tab.textContent }));
 
 test.beforeAll(() => {
   fs.mkdirSync(OUTPUT, { recursive: true });

@@ -79,6 +79,7 @@ export function createOrderingService({
     });
     const order = repo.findById(id);
     publishEvent({ type: 'order.placed', tableId: table.id, order });
+    publishEvent({ type: 'queue.changed', tableId: null });
     return order;
   }
 
@@ -107,6 +108,7 @@ export function createOrderingService({
     if (!repo.updateStatusIfCurrent(order.id, from, to)) throw orderStateConflict(order.status);
     const updated = repo.findById(order.id);
     publishEvent({ type: 'order.updated', tableId: updated.tableId, order: updated });
+    publishEvent({ type: 'queue.changed', tableId: null });
     return updated;
   }
 

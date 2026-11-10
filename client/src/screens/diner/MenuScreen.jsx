@@ -1,10 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import MenuExtras from '../../features/MenuExtras.jsx';
 import { getMenu } from '../../shared/api.js';
 import { formatMoney } from '../../shared/money.js';
 import { cartItemCount, cartTotalCents } from './cartStore.js';
-import { ClosedScreen, Notice, ReconnectingNotice, Skeletons, TopBar } from './parts.jsx';
+import { ClosedScreen, Notice, ReconnectingNotice, Skeletons, SlotView, TopBar } from './parts.jsx';
 import { useCart, useDinerSession } from './useDinerSession.js';
+
+const ChefsDice = lazy(() => import('../../xfactors/ChefsDice.jsx'));
 
 // The band below the sticky bar where a heading makes its category the current one.
 const CURRENT_LINE_PX = 130;
@@ -109,6 +112,7 @@ const NO_CATEGORIES = [];
 export function MenuScreen() {
   const [menu, setMenu] = useState(null);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [diceOpen, setDiceOpen] = useState(false);
   const lastRead = useRef(0);
 
   const loadMenu = useCallback(async () => {
@@ -139,13 +143,18 @@ export function MenuScreen() {
   const categories = menu?.categories ?? NO_CATEGORIES;
   const currentId = useCurrentCategory(categories);
 
-  if (closed) return <ClosedScreen title="Menu" label={table.label} />;
+  // BR5.1: saved v1 lines take their default choices once the menu is known.
+  useEffect(() => {
+    if (menu) cart.applyMenu(menu);
+  }, [menu, cart]);
+
+  if (closed) return <ClosedScreen title={table.label} />;
 
   // A failed reload keeps the menu on screen; the error replaces only an empty one.
   const showError = loadFailed && !menu;
   return (
     <>
-      <TopBar title="Menu" label={table.label}>
+      <TopBar title={table.label}>
         {menu && <CategoryPills categories={categories} currentId={currentId} />}
       </TopBar>
       <main className="content">
@@ -155,6 +164,15 @@ export function MenuScreen() {
           <>
             <Notice kind="error" icon="⚠" testId="menu-error">We couldn't load the menu. Check your connection and try again.</Notice>
             <button className="btn secondary" onClick={loadMenu} data-testid="menu-error-retry">Try again</button>
+          </>
+        )}
+        {menu && (
+          <>
+            <MenuExtras table={table} menu={menu} cart={cart} />
+            <button className="btn block" aria-expanded={diceOpen} onClick={() => setDiceOpen((open) => !open)} data-testid="menu-chefs-dice">🎲 Chef's Dice</button>
+            {diceOpen && (
+              <SlotView><ChefsDice table={table} orders={[]} menu={menu} onAddToCart={cart.add} /></SlotView>
+            )}
           </>
         )}
         {categories.map((category) => (

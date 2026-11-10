@@ -1,12 +1,43 @@
+import { Component, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 
 /** Parts more than one diner screen shows. Words come from the refined mockups. */
 export function TopBar({ title, label, children }) {
   return (
     <header className="topbar">
-      <div className="title"><h1>{title}</h1><span className="muted">{label}</span></div>
+      <div className="title"><h1>{title}</h1>{label && <span className="muted">{label}</span>}</div>
       {children}
     </header>
+  );
+}
+
+class SlotBoundary extends Component {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch(error) {
+    console.warn('A view could not be shown.', error);
+  }
+
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <div className="notice error" role="alert" data-testid="slot-error">
+        <span aria-hidden="true">⚠</span><span>We couldn't open this view. Please try again.</span>
+      </div>
+    );
+  }
+}
+
+/** C14: where a lazily loaded view opens; a file that fails to load shows plain words. */
+export function SlotView({ children }) {
+  return (
+    <SlotBoundary>
+      <Suspense fallback={<Skeletons testId="slot-loading" count={1} />}>{children}</Suspense>
+    </SlotBoundary>
   );
 }
 

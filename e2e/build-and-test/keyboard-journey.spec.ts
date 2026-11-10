@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '../staff-login';
 
 const TABLE = 8;
 const tabKey = (browserName: string) => browserName;

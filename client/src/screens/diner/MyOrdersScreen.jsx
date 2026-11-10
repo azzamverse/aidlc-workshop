@@ -1,12 +1,39 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import OrderExtras from '../../features/OrderExtras.jsx';
 import { cancelOrder, getTableOrders } from '../../shared/api.js';
 import { formatMoney } from '../../shared/money.js';
-import { ClosedScreen, EmptyView, Notice, ReconnectingNotice, Skeletons, TopBar } from './parts.jsx';
+import { ClosedScreen, EmptyView, Notice, ReconnectingNotice, Skeletons, SlotView, TopBar } from './parts.jsx';
 import { cancelRefusedMessage, mergeOrder, ordersForVisit } from './sessionLogic.js';
 import { useDinerSession } from './useDinerSession.js';
 
 const STATUS_ICONS = { Pending: '⏳', Preparing: '🍳', Completed: '✓', Cancelled: '✕' };
+
+// C14: each file loads only when its pill is opened; U7 replaces them.
+const VIEWS = [
+  { id: 'orders', label: 'Orders' },
+  { id: 'table', label: 'Table', View: lazy(() => import('../../xfactors/LivingTable.jsx')) },
+  { id: 'kitchen', label: 'Kitchen', View: lazy(() => import('../../xfactors/KitchenTheatre.jsx')) },
+  { id: 'bottle', label: 'Bottle', View: lazy(() => import('../../xfactors/SpinTheBottle.jsx')) },
+];
+
+function ViewSwitcher({ current, onChange }) {
+  return (
+    <div className="pills switcher" role="group" aria-label="My orders views" data-testid="orders-switcher">
+      {VIEWS.map((view) => (
+        <button
+          key={view.id}
+          className={view.id === current ? 'pill active' : 'pill'}
+          aria-pressed={view.id === current}
+          onClick={() => onChange(view.id)}
+          data-testid={`orders-view-${view.id}`}
+        >
+          {view.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 function StatusChip({ status }) {
   return (
@@ -48,6 +75,7 @@ export function MyOrdersScreen() {
   const [loadFailed, setLoadFailed] = useState(false);
   const [refusal, setRefusal] = useState(null);
   const [cancelling, setCancelling] = useState(null);
+  const [viewId, setViewId] = useState('orders');
   const lastRead = useRef(0);
   const visitId = useRef(null);
 
@@ -81,7 +109,7 @@ export function MyOrdersScreen() {
       setOrders((current) => mergeOrder(current ?? [], data.order, visitId.current));
     },
   });
-  const { table, closed, reconnecting } = session;
+  const { table, closed, reconnecting, cart } = session;
   visitId.current = table.visitId;
 
   async function cancel(order) {
@@ -107,26 +135,35 @@ export function MyOrdersScreen() {
   if (closed) return <ClosedScreen title="My orders" label={table.label} />;
 
   const showError = loadFailed && orders === null;
+  const { View } = VIEWS.find((view) => view.id === viewId);
   return (
     <>
       <TopBar title="My orders" label={table.label} />
       <main className="content">
+        <OrderExtras table={table} orders={orders ?? []} />
+        <ViewSwitcher current={viewId} onChange={setViewId} />
         {reconnecting && <ReconnectingNotice />}
         {placedNumber !== null && (
           <Notice kind="info" icon="✓" role="status" testId="order-placed">Order #{placedNumber} placed. We'll keep its status updated here.</Notice>
         )}
         {refusal && <Notice kind={refusal.kind} icon={refusal.icon} testId="order-refused">{refusal.text}</Notice>}
-        {orders === null && !showError && <Skeletons testId="orders-loading" />}
-        {showError && (
+        {View ? (
+          <SlotView><View table={table} orders={orders ?? []} onAddToCart={cart.add} /></SlotView>
+        ) : (
           <>
-            <Notice kind="error" icon="⚠" testId="orders-error">We couldn't load your orders. Check your connection and try again.</Notice>
-            <button className="btn secondary" onClick={() => loadOrders(table.id)} data-testid="orders-error-retry">Try again</button>
+            {orders === null && !showError && <Skeletons testId="orders-loading" />}
+            {showError && (
+              <>
+                <Notice kind="error" icon="⚠" testId="orders-error">We couldn't load your orders. Check your connection and try again.</Notice>
+                <button className="btn secondary" onClick={() => loadOrders(table.id)} data-testid="orders-error-retry">Try again</button>
+              </>
+            )}
+            {orders?.length === 0 && (
+              <EmptyView icon="🧾" title="No orders yet" text="Orders from your table will show here." tableId={table.id} testId="orders-empty" />
+            )}
+            {orders?.map((order) => <OrderCard key={order.id} order={order} busy={cancelling === order.id} onCancel={cancel} />)}
           </>
         )}
-        {orders?.length === 0 && (
-          <EmptyView icon="🧾" title="No orders yet" text="Orders from your table will show here." tableId={table.id} testId="orders-empty" />
-        )}
-        {orders?.map((order) => <OrderCard key={order.id} order={order} busy={cancelling === order.id} onCancel={cancel} />)}
       </main>
     </>
   );

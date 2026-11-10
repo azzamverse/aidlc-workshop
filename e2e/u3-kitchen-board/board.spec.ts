@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, restartSignedIn, signIn, test } from '../staff-login';
 import { archiveOpenVisit, closeTable, createOwnServer, LIVE_LIMIT_MS, moveByApi, openBoardLive, placeByApi } from './helpers';
 
 const TABLE = 6;
@@ -55,7 +55,9 @@ test('an order arrives within 2 seconds, newest first, with number, items, statu
 
 test('"★ New" shows on every Pending order, after a refresh and on a second screen, and clears on moving', async ({ page, browser, baseURL, request }) => {
   const order = await placeByApi(request, TABLE, coffee);
-  const other = await (await browser.newContext({ baseURL })).newPage();
+  const otherContext = await browser.newContext({ baseURL });
+  await signIn(otherContext, baseURL);
+  const other = await otherContext.newPage();
   await openBoardLive(page);
   await openBoardLive(other);
   for (const screen of [page, other]) {
@@ -123,11 +125,12 @@ test('a lost connection shows the notice, and the board catches up by itself', a
   const server = createOwnServer('board');
   try {
     await server.start();
+    await signIn(page.context(), server.url);
     await openBoardLive(page, server.url);
     await server.stop();
     await expect(page.getByTestId('board-reconnecting')).toContainText('Reconnecting… the board will catch up by itself.');
     await expect(page.getByTestId('staff-live')).toHaveText(/Reconnecting…/);
-    await server.start();
+    await restartSignedIn(page, server.start, server.url);
     const order = await placeByApi(request, TABLE, coffee, server.url);
     await expect(page.getByTestId(`board-order-${order.number}`)).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('board-reconnecting')).toHaveCount(0);

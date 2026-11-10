@@ -30,6 +30,12 @@ export function createTablesService({ repo, orderRepo, transactions, now = Date.
     });
   }
 
+  /** C11: this table only, and it never starts a visit (BR2.3). */
+  function getVisitForDiner(rawId) {
+    const table = requireTable(rawId);
+    return { id: table.id, label: table.label, visitId: repo.findOpenVisit(table.id)?.id ?? null };
+  }
+
   /** C4: the table's Open visit, or null, without starting one. */
   function getCurrentVisit(tableId) {
     return repo.findOpenVisit(tableId);
@@ -70,5 +76,5 @@ export function createTablesService({ repo, orderRepo, transactions, now = Date.
     });
   }
 
-  return { requireTable, openTable, getCurrentVisit, listVisitOrders, listCurrentOrders, listBoard, archiveVisit };
+  return { requireTable, openTable, getVisitForDiner, getCurrentVisit, listVisitOrders, listCurrentOrders, listBoard, archiveVisit };
 }

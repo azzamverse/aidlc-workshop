@@ -1,0 +1,92 @@
+/* Midnight Supper Club: the v2 design system (BR6.1). Scoped to the diner and PIN
+   screens, so the kitchen board and table bill keep v1's look. The v1 tokens are
+   mapped onto the new ones, so every v1 class on these screens takes the new look. */
+.diner, .pin-screen {
+  --night: #17101f; --aubergine: #2a1a38; --plum: #3d2750; --velvet: #5a3a72;
+  --brass: #e8b75a; --brass-soft: #f6d999; --cream: #fbf1df; --muted: #c4b4d2;
+  --ember: #ff7a4d; --sage: #8fd9a8; --danger: #ff9a8a;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px;
+  --r-card: 20px; --r-pill: 999px;
+  --lift: 0 2px 0 rgba(255,255,255,.08) inset, 0 14px 28px rgba(0,0,0,.45), 0 4px 8px rgba(0,0,0,.35);
+  --glow: 0 0 24px rgba(232,183,90,.45);
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --bg: var(--night); --surface: var(--aubergine); --text: var(--cream); --line: var(--velvet);
+  --accent: var(--brass); --accent-dark: var(--brass-soft); --accent-soft: var(--plum);
+  --radius: var(--r-card); --shadow: var(--lift);
+  --pending-bg: rgba(232,183,90,.16); --pending: var(--brass-soft);
+  --preparing-bg: rgba(255,122,77,.18); --preparing: var(--brass-soft);
+  --completed-bg: rgba(143,217,168,.16); --completed: var(--sage);
+  --cancelled-bg: rgba(196,180,210,.16); --cancelled: var(--muted);
+  --danger-bg: rgba(255,154,138,.14);
+  color: var(--cream);
+}
+body:has(.diner), body:has(.pin-screen) {
+  color: #fbf1df;
+  background: radial-gradient(120% 60% at 50% -10%, #5a3a72, #2a1a38 45%, #17101f 85%) fixed #17101f;
+}
+.diner :focus-visible, .pin-screen :focus-visible { outline: 3px solid var(--brass-soft); outline-offset: 2px; }
+.diner a { color: var(--brass-soft); }
+
+.diner h1, .pin-screen h1 { font: 700 28px/1.15 var(--serif); }
+.diner .content h2 { font: 700 20px/1.2 var(--serif); color: var(--brass-soft); margin-top: var(--s4); }
+.diner .item h3, .diner .card h3 { font: 700 18px var(--serif); }
+.diner .price { color: var(--brass-soft); font-weight: 700; }
+
+/* Frosted bars */
+.diner .topbar { background: rgba(23,16,31,.72); border-bottom: 0; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.diner .tabs { background: rgba(23,16,31,.82); border-top: 1px solid var(--velvet); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.diner .tab { color: var(--muted); }
+.diner .tab[aria-current="page"] { color: var(--brass-soft); background: transparent; box-shadow: inset 0 3px 0 var(--brass); text-shadow: 0 0 12px rgba(232,183,90,.7); }
+.diner .badge { background: var(--ember); color: var(--night); font-weight: 800; }
+
+/* Pills */
+.diner .pill { background: var(--aubergine); color: var(--cream); border: 0; box-shadow: inset 0 0 0 1px var(--velvet); font: 600 14px var(--sans); cursor: pointer; }
+.diner .pill.active { background: linear-gradient(180deg, var(--brass-soft), var(--brass)); color: var(--night); box-shadow: var(--glow); }
+.diner .switcher { padding: 0; }
+
+/* Raised cards with depth */
+.diner .card { background: linear-gradient(160deg, var(--plum), var(--aubergine)); box-shadow: var(--lift); padding: var(--s4); transform: perspective(700px) rotateX(2deg); transition: transform .2s ease; }
+.diner .card:hover { transform: perspective(700px) rotateX(0) translateY(-2px); }
+.diner .item { grid-template-columns: 76px 1fr; }
+.diner .tile { width: 76px; height: 76px; border-radius: 50%; background: radial-gradient(circle at 35% 28%, #fff, var(--cream) 42%, #bfa98a 100%); box-shadow: 0 12px 16px rgba(0,0,0,.55), 0 0 0 5px rgba(232,183,90,.28); transform: rotateX(12deg); }
+
+/* Buttons */
+.diner .btn { min-height: 44px; border-radius: var(--r-pill); background: linear-gradient(180deg, var(--brass-soft), var(--brass)); color: var(--night); box-shadow: 0 5px 0 #a87a2c, var(--glow); font: 700 15px var(--sans); }
+.diner .btn:hover { background: linear-gradient(180deg, var(--cream), var(--brass)); }
+.diner .btn.secondary { background: transparent; color: var(--brass-soft); box-shadow: inset 0 0 0 1px var(--brass); }
+.diner .btn.secondary:hover { background: rgba(232,183,90,.14); }
+.diner .btn[disabled] { background: var(--plum); color: var(--muted); box-shadow: none; }
+.diner .btn.block { width: 100%; }
+.diner .add { background: var(--brass); color: var(--night); box-shadow: 0 3px 0 #a87a2c; font-weight: 700; }
+.diner .add:hover { background: var(--brass-soft); }
+/* WebKit measures the 32 px pill a fraction short, so the area keeps a margin over 44 px. */
+.diner .add::after { top: -6.1px; bottom: -6.1px; }
+.diner .summary .btn { justify-content: center; box-shadow: 0 5px 0 #a87a2c, var(--glow); }
+.diner .summary .btn .price { color: inherit; }
+.diner [data-testid="cart-place-order"] { gap: 4px; }
+.diner [data-testid="cart-place-order"] .price::before { content: "· "; }
+.diner .stepper button { background: var(--plum); color: var(--brass-soft); }
+.diner .stepper button:not([disabled]):hover { background: var(--brass); color: var(--night); }
+.diner .link-btn { color: var(--brass-soft); }
+
+.diner .soldout-tag { background: var(--cancelled-bg); color: var(--muted); border: 1px solid var(--muted); }
+.diner .skeleton { background: linear-gradient(90deg, var(--aubergine), var(--plum), var(--aubergine)); background-size: 200% 100%; }
+.diner .notice { border: 1px solid currentColor; }
+
+/* The PIN screen */
+.pin-screen { max-width: 420px; margin: 0 auto; padding: var(--s6) var(--s4); text-align: center; }
+.pin-screen .muted { color: var(--muted); }
+.pin-screen .dots { display: flex; gap: var(--s3); justify-content: center; margin: var(--s5) 0 var(--s3); }
+.pin-screen .dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--brass); }
+.pin-screen .dot.on { background: var(--brass); box-shadow: var(--glow); }
+.pin-screen .pin-message { min-height: 24px; margin-bottom: var(--s3); color: var(--danger); }
+.pin-screen .pin { display: grid; grid-template-columns: repeat(3, 72px); gap: var(--s3); justify-content: center; }
+.pin-screen .key { height: 72px; border-radius: 50%; border: 0; font: 700 24px var(--serif); color: var(--cream); background: linear-gradient(160deg, var(--velvet), var(--aubergine)); box-shadow: var(--lift); cursor: pointer; transition: transform .12s ease; }
+.pin-screen .key:active { transform: translateY(2px); }
+.pin-screen .key[disabled] { opacity: .6; cursor: progress; }
+
+@media (prefers-reduced-motion: reduce) {
+  .diner .card, .diner .card:hover, .diner .tile, .pin-screen .key:active { transform: none; }
+}

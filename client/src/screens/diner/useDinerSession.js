@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { getBoard } from '../../shared/api.js';
+import { getVisit } from '../../shared/api.js';
 import { useLiveEvents } from '../../shared/live.js';
 import { getCartStore } from './cartStore.js';
 import { decideEvent, decideVisitCheck, isReconnecting, isTabPress } from './sessionLogic.js';
@@ -44,7 +44,7 @@ export function useDinerSession({ onEvent, onReload, onClosed }) {
     setClosed(true);
   }, [cart]);
 
-  // BR6.2: only ever the board read here, which starts no visit.
+  // BR6.2: only ever the visit read here, which starts no visit.
   const checkVisit = useCallback(
     async (triesLeft = CHECK_TRIES) => {
       clearTimeout(retryTimer.current);
@@ -58,7 +58,7 @@ export function useDinerSession({ onEvent, onReload, onClosed }) {
       if (state().closed || state().restarting) return;
       let board;
       try {
-        board = await getBoard();
+        board = { tables: [await getVisit(held.id)] };
       } catch (error) {
         console.warn('Could not check the table visit.', error);
         latest.current.onReload?.();

@@ -15,6 +15,57 @@ export function cartItemCount(lines) {
   return lines.reduce((count, line) => count + line.quantity, 0);
 }
 
+/** C13: a line is identified by its dish and its sorted option ids (BR5.1). */
+export function lineKeyOf(itemId, optionIds = []) {
+  return [itemId, ...[...optionIds].sort()].join('|');
+}
+
+/** A saved v1 line has no lineKey until the menu gives it its defaults. */
+export const keyOfLine = (line) => line.lineKey ?? line.itemId;
+
+const defaultOptionIds = (item) =>
+  (item.optionGroups ?? []).filter((group) => group.kind === 'one').flatMap((group) => {
+    const chosen = group.options.find((option) => option.isDefault);
+    return chosen ? [chosen.id] : [];
+  });
+
+/** Unknown ids are dropped, and a pick-one group left empty takes its default. */
+export function resolveOptionIds(item, optionIds) {
+  if (optionIds === undefined) return defaultOptionIds(item);
+  return (item.optionGroups ?? []).flatMap((group) => {
+    const picked = group.options.filter((option) => optionIds.includes(option.id)).map((option) => option.id);
+    if (group.kind === 'any') return picked;
+    return picked.length > 0 ? [picked[0]] : group.options.filter((option) => option.isDefault).map((option) => option.id);
+  });
+}
+
+function unitPriceCents(item, optionIds) {
+  const options = (item.optionGroups ?? []).flatMap((group) => group.options);
+  return options.reduce(
+    (price, option) => (optionIds.includes(option.id) ? price + option.priceDeltaCents : price),
+    item.priceCents,
+  );
+}
+
+const optionFields = (itemId, optionIds) =>
+  optionIds.length > 0 ? { lineKey: lineKeyOf(itemId, optionIds), optionIds } : {};
+
+/** Gives saved v1 lines their defaults, and joins lines that now have the same key. */
+function linesWithDefaults(lines, itemsById) {
+  const result = [];
+  for (const line of lines) {
+    const item = itemsById.get(line.itemId);
+    const optionIds = line.optionIds === undefined && item ? defaultOptionIds(item) : [];
+    const updated = optionIds.length > 0
+      ? { ...line, unitPriceCents: unitPriceCents(item, optionIds), ...optionFields(line.itemId, optionIds) }
+      : line;
+    const twin = result.find((candidate) => keyOfLine(candidate) === keyOfLine(updated));
+    if (twin) twin.quantity = Math.min(MAX_QUANTITY, twin.quantity + updated.quantity);
+    else result.push({ ...updated });
+  }
+  return result;
+}
+
 function isValidLine(line) {
   return (
     typeof line?.itemId === 'string' &&
@@ -66,8 +117,8 @@ export function createCartStore({ tableId, storage, setCount = () => {}, newKey 
   /** BR3.2: one placement key belongs to one set of lines. */
   const setLines = (lines) => publish({ ...state, lines, placementKey: newKey() });
 
-  function changeQuantity(itemId, change) {
-    const line = state.lines.find((candidate) => candidate.itemId === itemId);
+  function changeQuantity(lineKey, change) {
+    const line = state.lines.find((candidate) => keyOfLine(candidate) === lineKey);
     if (!line) return;
     const quantity = line.quantity + change;
     if (quantity < MIN_QUANTITY || quantity > MAX_QUANTITY) return;
@@ -88,21 +139,40 @@ export function createCartStore({ tableId, storage, setCount = () => {}, newKey 
       }
       publish({ visitId, lines: [], placementKey: newKey() });
     },
-    add(item) {
-      const existing = state.lines.find((line) => line.itemId === item.id);
-      if (existing) {
-        changeQuantity(item.id, 1);
+    /** C13: `optionIds` left out means the item's default choices. */
+    add(item, optionIds) {
+      const chosen = resolveOptionIds(item, optionIds);
+      const lineKey = lineKeyOf(item.id, chosen);
+      if (state.lines.some((line) => keyOfLine(line) === lineKey)) {
+        changeQuantity(lineKey, 1);
         return;
       }
       setLines([
         ...state.lines,
-        { itemId: item.id, name: item.name, unitPriceCents: item.priceCents, image: item.image, quantity: 1 },
+        {
+          itemId: item.id,
+          name: item.name,
+          unitPriceCents: unitPriceCents(item, chosen),
+          image: item.image,
+          quantity: 1,
+          ...optionFields(item.id, chosen),
+        },
       ]);
     },
-    increase: (itemId) => changeQuantity(itemId, 1),
-    decrease: (itemId) => changeQuantity(itemId, -1),
-    remove(itemId) {
-      setLines(state.lines.filter((line) => line.itemId !== itemId));
+    /** Once the menu is read, saved v1 lines take their defaults; their key changes only now. */
+    applyMenu(menu) {
+      const items = menu.categories.flatMap((category) => category.items);
+      const updated = linesWithDefaults(state.lines, new Map(items.map((item) => [item.id, item])));
+      const isChanged = updated.some((line, index) => keyOfLine(line) !== keyOfLine(state.lines[index] ?? {}));
+      if (!isChanged && updated.length === state.lines.length) return;
+      // Only joined lines change what would be ordered, so only they need a new key.
+      if (updated.length !== state.lines.length) setLines(updated);
+      else publish({ ...state, lines: updated });
+    },
+    increase: (lineKey) => changeQuantity(lineKey, 1),
+    decrease: (lineKey) => changeQuantity(lineKey, -1),
+    remove(lineKey) {
+      setLines(state.lines.filter((line) => keyOfLine(line) !== lineKey));
     },
     /** BR3.3: takes sold-out items out and returns the names of those it removed. */
     removeItems(itemIds) {

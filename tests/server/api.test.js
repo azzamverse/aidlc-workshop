@@ -3,7 +3,7 @@ import path from 'node:path';
 import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createApp, SCREEN_ROUTES } from '../../server/app.js';
-import { createTestContext, placementFor } from './context-helper.js';
+import { createTestContext, placementFor, signInStaff } from './context-helper.js';
 
 /** Dist in a dot-folder, as in a Bolt's worktree under .aidlc/worktrees/. */
 function createDist(folder) {
@@ -23,15 +23,18 @@ describe('API', () => {
   let context;
   let app;
   let distDir;
+  let staff;
+  let staffCookie;
 
   const openTable = async (id = 5) => (await request(app).get(`/api/tables/${id}`)).body.visitId;
   const place = (visitId, overrides, tableId = 5) =>
     request(app).post(`/api/tables/${tableId}/orders`).send(placementFor(visitId, overrides));
 
-  beforeEach(() => {
+  beforeEach(async () => {
     context = createTestContext();
     distDir = createDist(context.folder);
     app = createApp(context, { distDir, isTestMode: false });
+    ({ staff, cookie: staffCookie } = await signInStaff(app));
   });
 
   afterEach(() => context.cleanup());
@@ -54,12 +57,12 @@ describe('API', () => {
 
     it('PUT sold-out stores the mark, returns the item, and refuses bad requests', async () => {
       const url = '/api/menu/items/coffee/sold-out';
-      const response = await request(app).put(url).send({ soldOut: true });
+      const response = await staff.put(url).send({ soldOut: true });
       expect(response.status).toBe(200);
       expect(response.body).toMatchObject({ id: 'coffee', soldOut: true });
-      expectError(await request(app).put(url).send({}), 400, 'VALIDATION_FAILED');
+      expectError(await staff.put(url).send({}), 400, 'VALIDATION_FAILED');
       expectError(
-        await request(app).put('/api/menu/items/nope/sold-out').send({ soldOut: true }),
+        await staff.put('/api/menu/items/nope/sold-out').send({ soldOut: true }),
         404,
         'ITEM_NOT_FOUND',
       );
@@ -68,7 +71,7 @@ describe('API', () => {
 
   describe('tables', () => {
     it('GET /api/tables lists all 10 without starting a visit', async () => {
-      const response = await request(app).get('/api/tables');
+      const response = await staff.get('/api/tables');
       expect(response.status).toBe(200);
       expect(response.body.tables).toHaveLength(10);
       expect(response.body.tables.every((table) => table.visitId === null)).toBe(true);
@@ -78,7 +81,7 @@ describe('API', () => {
       const response = await request(app).get('/api/tables/5');
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ id: 5, label: 'Table 5', visitId: expect.any(String) });
-      const board = await request(app).get('/api/tables');
+      const board = await staff.get('/api/tables');
       expect(board.body.tables[4].visitId).toBe(response.body.visitId);
     });
 
@@ -108,7 +111,7 @@ describe('API', () => {
         totalCents: 500,
         lines: [{ name: 'Coffee', quantity: 2, unitPriceCents: 250 }],
       });
-      const board = await request(app).get('/api/tables');
+      const board = await staff.get('/api/tables');
       expect(board.body.tables[4].orders[0].id).toBe(response.body.id);
     });
 
@@ -155,15 +158,15 @@ describe('API', () => {
     it('PUT status moves one step and refuses the rest', async () => {
       const { body: order } = await place(await openTable());
       const url = `/api/orders/${order.id}/status`;
-      expectError(await request(app).put(url).send({ from: 'Pending', to: 'Completed' }), 400, 'VALIDATION_FAILED');
-      const moved = await request(app).put(url).send({ from: 'Pending', to: 'Preparing' });
+      expectError(await staff.put(url).send({ from: 'Pending', to: 'Completed' }), 400, 'VALIDATION_FAILED');
+      const moved = await staff.put(url).send({ from: 'Pending', to: 'Preparing' });
       expect(moved.status).toBe(200);
       expect(moved.body.status).toBe('Preparing');
-      const stale = await request(app).put(url).send({ from: 'Pending', to: 'Preparing' });
+      const stale = await staff.put(url).send({ from: 'Pending', to: 'Preparing' });
       expectError(stale, 409, 'ORDER_STATE_CONFLICT');
       expect(stale.body.error.currentStatus).toBe('Preparing');
       expectError(
-        await request(app).put('/api/orders/nope/status').send({ from: 'Pending', to: 'Preparing' }),
+        await staff.put('/api/orders/nope/status').send({ from: 'Pending', to: 'Preparing' }),
         404,
         'ORDER_NOT_FOUND',
       );
@@ -188,7 +191,7 @@ describe('API', () => {
     it('concurrent cancel and move requests: one wins, the other is told', async () => {
       const { body: order } = await place(await openTable());
       const [moved, cancelled] = await Promise.all([
-        request(app).put(`/api/orders/${order.id}/status`).send({ from: 'Pending', to: 'Preparing' }),
+        staff.put(`/api/orders/${order.id}/status`).send({ from: 'Pending', to: 'Preparing' }),
         request(app).post(`/api/tables/5/orders/${order.id}/cancel`),
       ]);
       expect([moved.status, cancelled.status].sort()).toEqual([200, 409]);
@@ -241,7 +244,7 @@ describe('API', () => {
     it('replays from the Last-Event-ID header', async () => {
       const visitId = await openTable();
       await place(visitId);
-      const { reader } = await openStream('', { 'Last-Event-ID': '0' });
+      const { reader } = await openStream('', { 'Last-Event-ID': '0', Cookie: staffCookie });
       expect(await readUntil(reader, 'order.placed')).toContain('id: 1');
     });
 

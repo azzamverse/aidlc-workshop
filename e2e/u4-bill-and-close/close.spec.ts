@@ -1,5 +1,5 @@
 import { watchArrival, whenRequestSent } from '../timing';
-import { expect, test } from '@playwright/test';
+import { expect, signIn, test } from '../staff-login';
 import { cancelByApi, coffee, completeByApi, createOwnServer, LIVE_LIMIT_MS, placeByApi, resetTable } from './helpers';
 
 const TABLE = 10;
@@ -94,8 +94,10 @@ test('the real close reaches an open diner screen and the board within 2 seconds
   const order = await placeByApi(request, TABLE, coffee);
   await completeByApi(request, order.id);
   const diner = await (await browser.newContext({ baseURL })).newPage();
-  const board = await (await browser.newContext({ baseURL })).newPage();
-  const ready = diner.waitForResponse((response) => new URL(response.url()).pathname === '/api/tables');
+  const boardContext = await browser.newContext({ baseURL });
+  await signIn(boardContext, baseURL);
+  const board = await boardContext.newPage();
+  const ready = diner.waitForResponse((response) => new URL(response.url()).pathname.endsWith('/visit'));
   await diner.goto(`/table/${TABLE}/orders`);
   await ready;
   await board.goto('/staff');
@@ -119,9 +121,10 @@ test('a device offline during the close finds out when it reconnects, and no vis
   const server = createOwnServer('close');
   try {
     await server.start();
+    await signIn(page.context(), server.url);
     const order = await placeByApi(request, TABLE, coffee, server.url);
     await completeByApi(request, order.id, server.url);
-    const ready = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/tables');
+    const ready = page.waitForResponse((response) => new URL(response.url()).pathname.endsWith('/visit'));
     await page.goto(`${server.url}/table/${TABLE}/orders`);
     await ready;
 
@@ -130,6 +133,7 @@ test('a device offline during the close finds out when it reconnects, and no vis
     await server.stop();
     await expect(page.getByTestId('reconnecting')).toBeVisible();
     await server.start();
+    await signIn(page.context(), server.url);
     expect((await request.post(`${server.url}/api/tables/${TABLE}/close`)).status()).toBe(200);
     await page.waitForTimeout(500);
     await expect(page.getByTestId('table-closed')).toHaveCount(0);

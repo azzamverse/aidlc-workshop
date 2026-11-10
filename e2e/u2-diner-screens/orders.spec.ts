@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, signIn, test } from '../staff-login';
 import { add, archiveOpenVisit, cancelByApi, createOwnServer, LIVE_LIMIT_MS, liveReady, moveByApi, openMenuReady, placeByApi } from './helpers';
 
 const TABLE = 3;
@@ -24,7 +24,7 @@ test('skeletons while reading, and an error with Try again on failure', async ({
   });
   // The screen also reads its orders once its live stream opens. Wait for that read
   // to fail too, or it could succeed after the route is lifted and clear the error.
-  const visitChecked = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/tables');
+  const visitChecked = page.waitForResponse((response) => new URL(response.url()).pathname.endsWith('/visit'));
   await page.goto(`/table/${TABLE}/orders`);
   await expect(page.getByTestId('orders-loading')).toBeVisible();
   release();
@@ -144,6 +144,7 @@ test('a lost connection shows the notice, then catches up on what it missed', as
     await server.stop();
     await expect(page.getByTestId('reconnecting')).toContainText("Reconnecting… we'll catch up on any changes.");
     await server.start();
+    await signIn(page.context(), server.url);
     await moveByApi(request, order.id, 'Pending', 'Preparing', server.url);
 
     await expect(statusOf(page, order.number)).toHaveText(/Preparing/, { timeout: 15_000 });

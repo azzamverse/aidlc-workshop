@@ -10,6 +10,9 @@ const e2ePort = Number(process.env.E2E_PORT ?? 3100);
 process.env.E2E_DB_FILE ??=
   process.env.DB_FILE ?? path.join(os.tmpdir(), `table-order-e2e-${e2ePort}-${Date.now()}.db`);
 
+// Kept in the environment like the database path, so the servers and the specs agree.
+process.env.STAFF_PIN ??= String(1000 + Math.floor(Math.random() * 9000));
+
 export default defineConfig({
   testDir: 'e2e',
   // Kept apart from test-results itself: Playwright empties this folder on each
@@ -37,6 +40,7 @@ export default defineConfig({
     env: {
       PORT: String(e2ePort),
       DB_FILE: process.env.E2E_DB_FILE,
+      STAFF_PIN: process.env.STAFF_PIN,
       NODE_ENV: 'test',
     },
   },

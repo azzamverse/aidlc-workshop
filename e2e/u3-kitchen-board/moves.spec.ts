@@ -1,5 +1,5 @@
 import { whenRequestSent } from '../timing';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../staff-login';
 import { archiveOpenVisit, cancelByApi, LIVE_LIMIT_MS, moveByApi, openBoardLive, placeByApi } from './helpers';
 
 const TABLE = 7;
@@ -27,7 +27,7 @@ test('Pending moves to Preparing to Completed, and then nothing is offered', asy
 test('a move reaches a diner\'s screen within 2 seconds', async ({ page, browser, baseURL, request }) => {
   const order = await placeByApi(request, TABLE, coffee);
   const diner = await (await browser.newContext({ baseURL })).newPage();
-  const ready = diner.waitForResponse((response) => new URL(response.url()).pathname === '/api/tables');
+  const ready = diner.waitForResponse((response) => new URL(response.url()).pathname.endsWith('/visit'));
   await diner.goto(`/table/${TABLE}/orders`);
   await ready;
   await openBoardLive(page);

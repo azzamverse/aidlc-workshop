@@ -6,5 +6,13 @@
     "scope": "dpl-workshop",
     "status": "complete",
     "request": "0bd50795"
+  },
+  {
+    "uuid": "01a1c070-e6b3-7d4b-a059-12fcf0b6f625",
+    "slug": "table-order-v2",
+    "dirName": "261109-table-order-v2",
+    "scope": "dpl-workshop",
+    "status": "in-flight",
+    "request": "32aefb96"
   }
 ]

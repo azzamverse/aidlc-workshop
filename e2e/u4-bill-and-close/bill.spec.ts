@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, restartSignedIn, signIn, test } from '../staff-login';
 import { cancelByApi, coffee, completeByApi, createOwnServer, LIVE_LIMIT_MS, moveByApi, placeByApi, resetTable } from './helpers';
 
 const TABLE = 9;
@@ -94,13 +94,14 @@ test('a lost connection shows the notice and the bill catches up', async ({ page
   const server = createOwnServer('bill');
   try {
     await server.start();
+    await signIn(page.context(), server.url);
     const order = await placeByApi(request, TABLE, coffee, server.url);
     await page.goto(`${server.url}${address}`);
     await expect(page.getByTestId(`bill-order-${order.number}`)).toBeVisible();
     await page.waitForTimeout(300);
     await server.stop();
     await expect(page.getByTestId('bill-reconnecting')).toContainText('Reconnecting…');
-    await server.start();
+    await restartSignedIn(page, server.start, server.url);
     await moveByApi(request, order.id, 'Pending', 'Preparing', server.url);
     await expect(page.getByTestId(`bill-order-${order.number}`).locator('.status')).toHaveText(/Preparing/, { timeout: 15_000 });
     await expect(page.getByTestId('bill-reconnecting')).toHaveCount(0);

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../staff-login';
 import { add, archiveOpenVisit, openMenuReady, setSoldOut } from './helpers';
 
 const TABLE = 2;
@@ -85,6 +85,9 @@ test('a failed placement keeps the cart, reads "Placing…" while waiting, and t
   // before WebKit's slow click even returns.
   let release = () => {};
   const held = new Promise<void>((resolve) => { release = resolve; });
+  // The app gives up on a request after 5 s, which a loaded WebKit can use up before
+  // the test reads "Placing…". This test is about the hold, not that time limit.
+  await page.addInitScript(() => { AbortSignal.timeout = () => new AbortController().signal; });
   await page.route('**/api/tables/*/orders', async (route) => {
     if (route.request().method() !== 'POST') return route.fallback();
     keys.push(route.request().postDataJSON().placementKey);

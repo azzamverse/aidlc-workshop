@@ -10,7 +10,7 @@ function start() {
   if (!fs.existsSync(path.join(settings.distDir, 'index.html'))) {
     throw new Error(`The screens are not built: ${settings.distDir} has no index.html. Run "npm run build".`);
   }
-  const context = createContext({ dbFile: settings.dbFile });
+  const context = createContext({ dbFile: settings.dbFile, staffPin: settings.staffPin });
   context.live.start();
   const app = createApp(context, { distDir: settings.distDir, isTestMode: settings.isTestMode });
 

@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { SEED_CATEGORIES, TABLE_COUNT } from './seed-data.js';
+import { logger } from './logger.js';
+import { SEED_CATEGORIES, SEED_DETAILS, TABLE_COUNT } from './seed-data.js';
 
 const SCHEMA = `
   CREATE TABLE IF NOT EXISTS menu_categories (
@@ -61,6 +62,113 @@ const SCHEMA = `
   );
 `;
 
+/** U5's add-only steps (BR3.1). U6's and U7's come from their feature modules. */
+export const U5_UPGRADE_STEPS = [
+  {
+    id: 'u5-item-allergens',
+    sql: `CREATE TABLE item_allergens (
+      item_id TEXT NOT NULL REFERENCES menu_items(id),
+      allergen TEXT NOT NULL CHECK (allergen IN ('gluten', 'dairy', 'eggs', 'nuts', 'peanuts', 'soy', 'fish', 'shellfish')),
+      PRIMARY KEY (item_id, allergen)
+    )`,
+  },
+  {
+    id: 'u5-item-moods',
+    sql: `CREATE TABLE item_moods (
+      item_id TEXT PRIMARY KEY REFERENCES menu_items(id),
+      mood TEXT NOT NULL CHECK (mood IN ('light', 'hearty', 'sweet'))
+    )`,
+  },
+  {
+    id: 'u5-option-groups',
+    sql: `CREATE TABLE option_groups (
+      id TEXT PRIMARY KEY,
+      item_id TEXT NOT NULL REFERENCES menu_items(id),
+      name TEXT NOT NULL,
+      kind TEXT NOT NULL CHECK (kind IN ('one', 'any')),
+      position INTEGER NOT NULL CHECK (position >= 0)
+    )`,
+  },
+  {
+    id: 'u5-options',
+    sql: `CREATE TABLE options (
+      id TEXT PRIMARY KEY,
+      group_id TEXT NOT NULL REFERENCES option_groups(id),
+      name TEXT NOT NULL,
+      price_delta_cents INTEGER NOT NULL DEFAULT 0 CHECK (price_delta_cents >= 0),
+      is_default INTEGER NOT NULL DEFAULT 0 CHECK (is_default IN (0, 1)),
+      position INTEGER NOT NULL CHECK (position >= 0)
+    )`,
+  },
+];
+
+function runStep(db, step) {
+  db.exec('BEGIN IMMEDIATE');
+  try {
+    db.exec(step.sql);
+    db.prepare('INSERT INTO schema_upgrades (id, applied_at) VALUES (?, ?)').run(step.id, new Date().toISOString());
+    db.exec('COMMIT');
+  } catch (error) {
+    if (db.isTransaction) db.exec('ROLLBACK');
+    throw error;
+  }
+}
+
+/**
+ * Applies each unrecorded step once, in its own transaction, in the order given.
+ * A failing step stops the start with its id logged; earlier steps stay (BR3.1).
+ */
+export function runUpgrades(db, steps, log = logger) {
+  db.exec('CREATE TABLE IF NOT EXISTS schema_upgrades (id TEXT PRIMARY KEY, applied_at TEXT NOT NULL)');
+  const isRecorded = db.prepare('SELECT 1 FROM schema_upgrades WHERE id = ?');
+  for (const step of steps) {
+    if (isRecorded.get(step.id)) continue;
+    try {
+      runStep(db, step);
+    } catch (error) {
+      log.error(`Database upgrade step ${step.id} failed`, error);
+      throw new Error(`Database upgrade step ${step.id} failed: ${error.message}`, { cause: error });
+    }
+  }
+}
+
+function insertItemDetails(db, itemId, details) {
+  const addAllergen = db.prepare('INSERT INTO item_allergens (item_id, allergen) VALUES (?, ?)');
+  const addGroup = db.prepare('INSERT INTO option_groups (id, item_id, name, kind, position) VALUES (?, ?, ?, ?, ?)');
+  const addOption = db.prepare(`
+    INSERT INTO options (id, group_id, name, price_delta_cents, is_default, position) VALUES (?, ?, ?, ?, ?, ?)
+  `);
+  const hasRows = (table) => db.prepare(`SELECT 1 FROM ${table} WHERE item_id = ? LIMIT 1`).get(itemId);
+
+  if (!hasRows('item_allergens')) details.allergens.forEach((allergen) => addAllergen.run(itemId, allergen));
+  db.prepare('INSERT OR IGNORE INTO item_moods (item_id, mood) VALUES (?, ?)').run(itemId, details.mood);
+  if (hasRows('option_groups')) return;
+  details.groups.forEach((group, groupPosition) => {
+    const groupId = `${itemId}-${group.name.toLowerCase()}`;
+    addGroup.run(groupId, itemId, group.name, group.kind, groupPosition);
+    group.options.forEach(([name, priceDeltaCents, isDefault], optionPosition) => {
+      const optionId = `${groupId}-${name.toLowerCase().replaceAll(' ', '-')}`;
+      addOption.run(optionId, groupId, name, priceDeltaCents, isDefault ? 1 : 0, optionPosition);
+    });
+  });
+}
+
+/** Adds v2's details by item name, never changing an item or existing details (BR3.2). */
+export function addMissingDetails(db, detailsByName = SEED_DETAILS) {
+  const findItem = db.prepare('SELECT id FROM menu_items WHERE name = ?');
+  db.exec('BEGIN IMMEDIATE');
+  try {
+    for (const [name, details] of Object.entries(detailsByName)) {
+      const item = findItem.get(name);
+      if (item) insertItemDetails(db, item.id, details);
+    }
+    db.exec('COMMIT');
+  } catch (error) {
+    if (db.isTransaction) db.exec('ROLLBACK');
+    throw error;
+  }
+}
+
 function insertSeedRows(db) {
   const addTable = db.prepare('INSERT INTO tables (id, label) VALUES (?, ?)');
   const addCategory = db.prepare('INSERT INTO menu_categories (id, name, position) VALUES (?, ?, ?)');
@@ -93,15 +201,20 @@ export function seedIfEmpty(db, insertRows = insertSeedRows) {
   }
 }
 
-/** Opens the database file, creating its folder, schema and seed as needed. */
-export function openDatabase(dbFile) {
+/**
+ * Opens the database file, creating its folder, schema and seed as needed, then
+ * upgrades it: U5's steps first, then `featureSteps` (U6's, then U7's).
+ */
+export function openDatabase(dbFile, { featureSteps = [], log = logger } = {}) {
   let db;
   try {
     fs.mkdirSync(path.dirname(dbFile), { recursive: true });
     db = new DatabaseSync(dbFile);
     db.exec('PRAGMA foreign_keys = ON');
     db.exec(SCHEMA);
+    runUpgrades(db, [...U5_UPGRADE_STEPS, ...featureSteps], log);
     seedIfEmpty(db);
+    addMissingDetails(db);
     return db;
   } catch (error) {
     if (db?.isOpen) db.close();

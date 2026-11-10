@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '../staff-login';
 import { add, archiveOpenVisit, cancelByApi, closeTable, createOwnServer, liveReady, moveByApi, openMenuReady, placeByApi, setSoldOut } from './helpers';
 
 const UNIT = 'u2-diner-screens';
@@ -86,7 +86,8 @@ test('menu.html: categories, pills, cards, Sold out and View cart', async ({ pag
   await fillCartAsMockup(page);
   const mockup = await openMockup(page, 'menu.html');
 
-  for (const selector of [...SHARED_SELECTORS, '.pill', '.content h2', 'article.item h3', 'article.item p', '.price-row .price', '.add', '.soldout-tag', '.badge']) {
+  // v2's chosen restyle heads the Menu with the table's name, so the two top-bar words are skipped.
+  for (const selector of [...SHARED_SELECTORS.slice(2), '.pill', '.content h2', 'article.item h3', 'article.item p', '.price-row .price', '.add', '.soldout-tag', '.badge']) {
     await expectSameWords(page, mockup, selector);
   }
   await expect(page.locator('.pill.active')).toHaveText('Starters');

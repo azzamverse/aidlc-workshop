@@ -2,28 +2,33 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { placeOrder } from '../../shared/api.js';
 import { formatMoney } from '../../shared/money.js';
-import { cartTotalCents, MAX_QUANTITY, MIN_QUANTITY, soldOutMessage } from './cartStore.js';
+import CartExtras from '../../features/CartExtras.jsx';
+import { cartTotalCents, keyOfLine, MAX_QUANTITY, MIN_QUANTITY, soldOutMessage } from './cartStore.js';
 import { ClosedScreen, EmptyView, Notice, ReconnectingNotice, TopBar } from './parts.jsx';
 import { useCart, useDinerSession } from './useDinerSession.js';
 
 const PLACING_FAILED = "We couldn't place your order. Your cart is safe. Please try again.";
 
 function CartLine({ line, cart, disabled }) {
-  const { itemId, name, quantity, unitPriceCents } = line;
+  const { itemId, name, image, quantity, unitPriceCents } = line;
+  const lineKey = keyOfLine(line);
   const atLimit = quantity >= MAX_QUANTITY;
   return (
-    <article className="card" data-testid={`cart-line-${itemId}`}>
-      <div className="line"><h3>{name}</h3><span className="price">{formatMoney(unitPriceCents * quantity)}</span></div>
-      <p className="muted">{formatMoney(unitPriceCents)} each</p>
-      <div className="line">
-        <div className="stepper">
-          <button aria-label={`One fewer ${name}`} disabled={disabled || quantity <= MIN_QUANTITY} onClick={() => cart.decrease(itemId)} data-testid={`cart-fewer-${itemId}`}>−</button>
-          <output data-testid={`cart-quantity-${itemId}`}>{quantity}</output>
-          <button aria-label={`One more ${name}`} disabled={disabled || atLimit} onClick={() => cart.increase(itemId)} data-testid={`cart-more-${itemId}`}>+</button>
+    <article className="card item" data-testid={`cart-line-${itemId}`}>
+      <div className="tile" aria-hidden="true">{image}</div>
+      <div>
+        <div className="line"><h3>{name}</h3><span className="price">{formatMoney(unitPriceCents * quantity)}</span></div>
+        <p className="muted">{formatMoney(unitPriceCents)} each</p>
+        <div className="line">
+          <div className="stepper">
+            <button aria-label={`One fewer ${name}`} disabled={disabled || quantity <= MIN_QUANTITY} onClick={() => cart.decrease(lineKey)} data-testid={`cart-fewer-${itemId}`}>−</button>
+            <output data-testid={`cart-quantity-${itemId}`}>{quantity}</output>
+            <button aria-label={`One more ${name}`} disabled={disabled || atLimit} onClick={() => cart.increase(lineKey)} data-testid={`cart-more-${itemId}`}>+</button>
+          </div>
+          <button className="link-btn" aria-label={`Remove ${name}`} disabled={disabled} onClick={() => cart.remove(lineKey)} data-testid={`cart-remove-${itemId}`}>Remove</button>
         </div>
-        <button className="link-btn" aria-label={`Remove ${name}`} disabled={disabled} onClick={() => cart.remove(itemId)} data-testid={`cart-remove-${itemId}`}>Remove</button>
+        {atLimit && <p className="muted" data-testid={`cart-limit-${itemId}`}>20 is the most for one item.</p>}
       </div>
-      {atLimit && <p className="muted" data-testid={`cart-limit-${itemId}`}>20 is the most for one item.</p>}
     </article>
   );
 }
@@ -74,11 +79,12 @@ export function CartScreen() {
         {message && (
           <Notice kind={message === PLACING_FAILED ? 'error' : ''} icon="⚠" testId="cart-message">{message}</Notice>
         )}
+        <CartExtras table={table} lines={lines} />
         {lines.length === 0 ? (
           <EmptyView icon="🛒" title="Your cart is empty" text="Add something from the menu to get started." tableId={table.id} testId="cart-empty" />
         ) : (
           <>
-            {lines.map((line) => <CartLine key={line.itemId} line={line} cart={cart} disabled={sending} />)}
+            {lines.map((line) => <CartLine key={keyOfLine(line)} line={line} cart={cart} disabled={sending} />)}
             <div className="total card"><span>Total</span><span className="price" data-testid="cart-total">{total}</span></div>
           </>
         )}

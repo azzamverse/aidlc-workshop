@@ -15,7 +15,8 @@ describe('ordering service', () => {
     context = createTestContext();
     visitId = context.tables.openTable(5).visitId;
     frames = [];
-    context.live.subscribe({ send: (frame) => frames.push(frame) });
+    // queue.changed (v2) goes with each change; these tests count the order events.
+    context.live.subscribe({ send: (frame) => !frame.includes('event: queue.changed') && frames.push(frame) });
     frames.length = 0;
   });
 

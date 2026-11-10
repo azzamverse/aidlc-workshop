@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../staff-login';
 import { coffee, completeByApi, moveByApi, placeByApi, resetTable } from './helpers';
 
 const UNIT = 'u4-bill-and-close';

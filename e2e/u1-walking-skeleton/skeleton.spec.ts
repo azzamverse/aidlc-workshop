@@ -3,7 +3,7 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, restartSignedIn, signIn, test, type Page } from '../staff-login';
 
 const LIVE_LIMIT_MS = 2000;
 
@@ -14,7 +14,9 @@ async function placeCoffeeFrom(page: Page) {
 }
 
 test('an order from /table/5 shows on /staff within 2 seconds, with no refresh', async ({ browser, baseURL }) => {
-  const staff = await (await browser.newContext({ baseURL })).newPage();
+  const staffContext = await browser.newContext({ baseURL });
+  await signIn(staffContext, baseURL);
+  const staff = await staffContext.newPage();
   const diner = await (await browser.newContext({ baseURL })).newPage();
   await staff.goto('/staff');
   await expect(staff.getByTestId('staff-live')).toHaveText(/Live/);
@@ -48,7 +50,7 @@ test('a table address that does not exist says so and takes no orders', async ({
 
 test('every screen address serves the app and the tabs move between them', async ({ page }) => {
   await page.goto('/table/3');
-  await expect(page.getByRole('heading', { name: 'Menu' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Table 3', exact: true })).toBeVisible();
   await page.getByTestId('tab-cart').click();
   await expect(page).toHaveURL(/\/table\/3\/cart$/);
   await expect(page.getByRole('heading', { name: 'Your cart', exact: true })).toBeVisible();
@@ -112,6 +114,7 @@ test.describe('a server of its own', () => {
 
     await stopServer();
     await startServer();
+    await signIn(page.context(), ownUrl);
 
     await page.goto(`${ownUrl}/staff`);
     await expect(page.getByTestId('board-order-1')).toContainText('1 × Coffee');
@@ -122,12 +125,13 @@ test.describe('a server of its own', () => {
   test('the board reconnects by itself and shows what it missed', async ({ page }) => {
     await startServer();
     const { visitId } = await (await fetch(`${ownUrl}/api/tables/2`)).json();
+    await signIn(page.context(), ownUrl);
     await page.goto(`${ownUrl}/staff`);
     await expect(page.getByTestId('staff-live')).toHaveText(/Live/);
 
     await stopServer();
     await expect(page.getByTestId('staff-live')).toHaveText(/Reconnecting/);
-    await startServer();
+    await restartSignedIn(page, startServer, ownUrl);
     const response = await fetch(`${ownUrl}/api/tables/2/orders`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

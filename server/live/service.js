@@ -10,8 +10,12 @@ function formatEvent(event) {
   return formatFrame(event.sequence, event.type, data);
 }
 
+// C12: the only events with no table; neither carries order or bill data.
+const NO_TABLE_EVENT_TYPES = new Set(['menu.item-updated', 'queue.changed']);
+
+/** BR2.2: a table's stream gets its own events and the no-table ones; replay uses this too. */
 const isForClient = (event, client) =>
-  client.tableId === null || event.tableId === null || event.tableId === client.tableId;
+  client.tableId === null || event.tableId === client.tableId || NO_TABLE_EVENT_TYPES.has(event.type);
 
 /**
  * Publishes events and keeps open streams up to date. An event is stored inside

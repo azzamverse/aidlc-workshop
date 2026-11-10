@@ -1,5 +1,5 @@
 import { whenRequestSent } from '../timing';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from '../staff-login';
 import { LIVE_LIMIT_MS, openBoardLive, setSoldOut } from './helpers';
 
 const ITEM = 'tomato-soup';
@@ -24,7 +24,7 @@ test('lists all 12 items with their saved marks', async ({ page, request }) => {
 
 test('a mark reaches an open menu within 2 seconds and stays after a refresh', async ({ page, browser, baseURL }) => {
   const diner = await (await browser.newContext({ baseURL })).newPage();
-  const ready = diner.waitForResponse((response) => new URL(response.url()).pathname === '/api/tables');
+  const ready = diner.waitForResponse((response) => new URL(response.url()).pathname.endsWith('/visit'));
   await diner.goto('/table/8');
   await ready;
   await openPanel(page);

@@ -2,7 +2,7 @@ import { itemNotFound, validationFailed } from '../platform/errors.js';
 
 export function createMenuService({ repo, transactions, publishEvent }) {
   function getMenu() {
-    return { categories: repo.listCategoriesWithItems() };
+    return { categories: repo.listCategoriesWithDetails() };
   }
 
   function setSoldOut(itemId, soldOut) {

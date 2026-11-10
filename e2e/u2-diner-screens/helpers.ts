@@ -114,7 +114,7 @@ export async function openMenuReady(page: Page, tableId: number) {
 
 /** Waits until the screen's live stream is open and its first visit check has been answered. */
 export async function liveReady(page: Page, action: () => Promise<unknown>) {
-  const answered = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/tables');
+  const answered = page.waitForResponse((response) => new URL(response.url()).pathname.endsWith('/visit'));
   await action();
   await answered;
 }

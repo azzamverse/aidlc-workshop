@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, signIn, test, type Page } from '../staff-login';
 import { archiveOpenVisit, cancelByApi, createOwnServer, moveByApi, openBoardLive, placeByApi, setSoldOut } from './helpers';
 
 const UNIT = 'u3-kitchen-board';
@@ -100,13 +100,14 @@ test('the Menu availability panel matches #availability', async ({ page, context
   await savePair('availability-panel', mockup, page);
 });
 
-test('states.html: connection lost', async ({ page, context }) => {
+test('states.html: connection lost', async ({ page, context, baseURL }) => {
   const states = await context.newPage();
   await states.goto(mockupUrl('states.html'));
   const { section, text } = await stateText(states, 'Kitchen Board: connection lost');
   const server = createOwnServer('mockup');
   try {
     await server.start();
+    await signIn(page.context(), server.url);
     await openBoardLive(page, server.url);
     await server.stop();
     const built = page.getByTestId('board-reconnecting');
@@ -116,6 +117,8 @@ test('states.html: connection lost', async ({ page, context }) => {
     await section.screenshot({ path: path.join(OUTPUT, 'state-connection-lost-mockup.png') });
   } finally {
     await server.remove();
+    // Cookies ignore the port, so the own server's session replaced the main one.
+    await signIn(page.context(), baseURL);
   }
 });
 

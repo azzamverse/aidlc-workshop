@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../staff-login';
 import { watchArrival } from '../timing';
 import { add, archiveOpenVisit, LIVE_LIMIT_MS, liveReady, openMenuReady, setSoldOut } from './helpers';
 
@@ -43,7 +43,12 @@ test('"+ Add" looks about 32 px tall with a 44 px touch area, at the far right o
       gapToRowEnd: row.right - box.right,
     };
   });
-  expect(facts).toEqual({ height: 32, touchHeight: 44, gapToRowEnd: 0 });
+  // v2's chosen card tilt moves a measured box by a fraction of a pixel, so whole pixels are compared.
+  expect({
+    height: Math.round(facts.height),
+    touchHeight: Math.round(facts.touchHeight),
+    gapToRowEnd: Math.round(facts.gapToRowEnd),
+  }).toEqual({ height: 32, touchHeight: 44, gapToRowEnd: 0 });
 });
 
 test('a pill scrolls to its category and is filled in, the last one included', async ({ page }) => {

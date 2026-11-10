@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import BillExtras from '../../features/BillExtras.jsx';
 import { closeTable, getBill } from '../../shared/api.js';
 import { useLiveEvents } from '../../shared/live.js';
 import { formatMoney } from '../../shared/money.js';
@@ -187,6 +188,7 @@ export function TableBillScreen() {
             <span>Still open: {open.map((order) => `#${order.number} ${order.status}`).join(', ')}. The table can be closed once these are finished.</span>
           </div>
         )}
+        {bill && <BillExtras bill={bill} />}
         {bill?.orders.map((order) => <OrderBill key={order.id} order={order} />)}
         {isEmpty && (
           <section className="card empty" data-testid="bill-empty">

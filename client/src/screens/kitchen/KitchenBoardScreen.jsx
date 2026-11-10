@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import BoardExtras from '../../features/BoardExtras.jsx';
 import { getBoard, moveOrder } from '../../shared/api.js';
 import { useLiveEvents } from '../../shared/live.js';
 import { LiveIndicator, StaffBar } from '../../shell/StaffFrame.jsx';
@@ -167,6 +168,7 @@ export function KitchenBoardScreen() {
           )}
         </div>
       )}
+      <BoardExtras tables={tables ?? []} />
       {tables === null && !loadFailed && (
         <main className="board" data-testid="board-loading" aria-label="Loading">
           {Array.from({ length: 8 }, (_, index) => <div className="skeleton" key={index} />)}
